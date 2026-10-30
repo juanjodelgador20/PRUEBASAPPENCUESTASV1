@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#00162B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Encuestas">
+<title>Encuestas · Mercadeando</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icono-192.png">
+<link rel="apple-touch-icon" href="icono-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{
+  --azul:#003764; --celeste:#00A0DF; --celeste-texto:#006E9A; --plomo:#D8D8D8;
+  --profundo:#00162B; --oscuro:#051C2C; --gris:#EDECEA; --blanco:#FFFFFF;
+  --cuerpo:#2C3B46; --secundario:#5A6B7A; --divisor:#C9C8C4; --divisor-osc:#1E3A55;
+  --ok:#0B7A4B; --error:#B3261E;
+  --titulos:Lato,"Helvetica Neue",Arial,sans-serif; --texto:Montserrat,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--gris);color:var(--cuerpo);font-family:var(--texto);font-size:16px;-webkit-tap-highlight-color:transparent}
+button,input,textarea{font:inherit}
+.app{max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;background:var(--blanco)}
+.pantalla{display:none;flex:1;flex-direction:column;min-height:100vh;min-height:100dvh}
+.pantalla.activa{display:flex}
+.oscuro{background:var(--profundo);color:var(--blanco)}
+.eyebrow{margin:0;font-family:var(--titulos);font-weight:700;font-size:12px;letter-spacing:.1em;color:var(--celeste-texto);text-transform:uppercase}
+.oscuro .eyebrow{color:var(--celeste)}
+h1{margin:0;font-family:var(--titulos);font-weight:900;line-height:1.2}
+.subrayado{width:48px;height:4px;background:var(--celeste);margin-top:12px}
+.btn{min-height:56px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:4px;font-family:var(--titulos);font-weight:900;font-size:17px;cursor:pointer;text-decoration:none;padding:0 16px}
+.btn-celeste{background:var(--celeste);color:var(--profundo)}
+.btn-azul{background:var(--azul);color:var(--blanco)}
+.btn-borde{background:transparent;border:1px solid var(--azul);color:var(--azul);font-weight:700}
+.btn-texto{background:transparent;color:inherit;font-weight:700;font-size:15px;min-height:48px}
+.btn:disabled{opacity:.45;cursor:default}
+.icono-btn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:transparent;border:0;color:inherit;cursor:pointer;border-radius:4px}
+svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.logo{display:block;height:auto}
+
+/* Ingreso */
+#ingreso{padding:64px 32px 32px;position:relative;overflow:hidden}
+#ingreso .malla{position:absolute;left:0;right:0;bottom:90px;width:100%;height:420px;opacity:.12;pointer-events:none}
+#ingreso > *{position:relative}
+.campo{display:flex;flex-direction:column;gap:8px}
+.campo label{font-size:13px;font-weight:600;color:var(--plomo)}
+.campo input{height:52px;padding:0 16px;border:1px solid var(--divisor-osc);border-radius:4px;background:var(--oscuro);color:var(--blanco);font-size:16px}
+.campo input:focus{outline:2px solid var(--celeste);outline-offset:1px}
+.aviso-error{margin:0;font-size:14px;color:#FFB4AB;min-height:20px}
+
+/* Cabecera azul */
+.cabecera{background:var(--azul);color:var(--blanco);padding:calc(env(safe-area-inset-top) + 20px) 20px 20px;display:flex;flex-direction:column;gap:14px}
+.fila{display:flex;align-items:center;gap:10px}
+.estado{display:flex;align-items:center;gap:10px;background:var(--profundo);padding:12px 14px;border-radius:4px;font-size:13px;color:var(--blanco);border:0;width:100%;text-align:left;cursor:pointer}
+.estado .ic{stroke:var(--celeste)}
+.estado span.crece{flex:1}
+.estado small{color:var(--plomo);font-size:12px}
+.cuerpo-gris{background:var(--gris);flex:1;padding:24px 20px 32px;display:flex;flex-direction:column;gap:12px}
+.tarjeta{background:var(--blanco);padding:20px;display:flex;flex-direction:column;gap:10px;border:0;width:100%;text-align:left;cursor:pointer;color:var(--cuerpo)}
+.tarjeta-titulo{font-family:var(--titulos);font-weight:700;font-size:18px;color:var(--azul)}
+.meta{font-size:13px;color:var(--secundario)}
+.barra{flex:1;height:6px;background:var(--gris)}
+.barra i{display:block;height:6px;background:var(--celeste)}
+.cifra{font-size:12px;font-weight:600;color:var(--azul)}
+.vacio{background:var(--blanco);padding:24px;font-size:14px;line-height:1.6;color:var(--secundario)}
+
+/* Distintivos */
+.distintivo{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap}
+.distintivo svg.ic{width:15px;height:15px;stroke-width:2.2}
+.d-enviada{background:#E3F4EC;color:var(--ok)}
+.d-pendiente{background:#FFF1D6;color:#7A4B00}
+.d-error{background:#FCE4E2;color:var(--error)}
+
+/* Historial */
+.item-hist{background:var(--blanco);padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.item-hist .fila{justify-content:space-between;align-items:flex-start}
+.item-hist b{font-family:var(--titulos);font-size:16px;color:var(--azul)}
+.item-hist .detalle{font-size:12px;color:var(--secundario)}
+.leyenda{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--secundario)}
+
+/* Pregunta */
+.barra-sup{padding:calc(env(safe-area-inset-top) + 16px) 20px 0;display:flex;flex-direction:column;gap:14px;background:var(--blanco)}
+.progreso{height:4px;background:var(--gris)}
+.progreso i{display:block;height:4px;background:var(--celeste);transition:width .25s}
+#zona-pregunta{padding:32px 20px 24px;display:flex;flex-direction:column;gap:8px;flex:1}
+#zona-pregunta h1{font-size:24px;color:var(--azul)}
+.ayuda{margin:4px 0 16px;font-size:14px;color:var(--secundario)}
+.opciones{display:flex;flex-direction:column;gap:10px}
+.opcion{min-height:56px;width:100%;padding:12px 16px;display:flex;align-items:center;gap:14px;border:1px solid var(--divisor);border-radius:4px;background:var(--blanco);color:var(--cuerpo);font-size:16px;text-align:left;cursor:pointer}
+.opcion .marca{width:20px;height:20px;flex-shrink:0;border:2px solid var(--secundario);border-radius:50%}
+.opcion.cuadro .marca{border-radius:3px}
+.opcion.sel{background:var(--azul);border-color:var(--azul);color:var(--blanco);font-weight:600}
+.opcion.sel .marca{border:6px solid var(--celeste);background:var(--blanco)}
+.opcion.cuadro.sel .marca{border:2px solid var(--celeste);background:var(--celeste);box-shadow:inset 0 0 0 3px var(--azul)}
+.escala{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.escala .opcion{justify-content:center;padding:0;font-weight:700;font-family:var(--titulos);font-size:18px}
+.escala-pie{display:flex;justify-content:space-between;font-size:12px;color:var(--secundario);margin-top:6px}
+.entrada{width:100%;min-height:56px;padding:14px 16px;border:1px solid var(--divisor);border-radius:4px;font-size:16px;color:var(--cuerpo);background:var(--blanco)}
+textarea.entrada{min-height:140px;resize:vertical}
+.entrada:focus{outline:2px solid var(--celeste);outline-offset:1px;border-color:var(--azul)}
+.foto-prev{width:100%;max-height:300px;object-fit:cover;border-radius:8px;margin-top:12px}
+.error-preg{color:var(--error);font-size:14px;font-weight:600;min-height:20px;margin:8px 0 0}
+.pie{padding:14px 20px calc(env(safe-area-inset-bottom) + 20px);display:flex;gap:12px;border-top:1px solid var(--divisor);background:var(--blanco)}
+
+/* Fin */
+#fin{padding:calc(env(safe-area-inset-top) + 96px) 32px calc(env(safe-area-inset-bottom) + 32px)}
+.circulo{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.circulo svg.ic{width:36px;height:36px;stroke-width:2.2;stroke:var(--profundo)}
+.resumen{margin-top:32px;background:var(--oscuro);border:1px solid var(--divisor-osc);padding:4px 16px}
+.resumen .fila{justify-content:space-between;padding:12px 0;font-size:14px;border-bottom:1px solid var(--divisor-osc)}
+.resumen .fila:last-child{border-bottom:0}
+.resumen .fila > span:first-child{color:var(--plomo)}
+.crece{flex:1}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--profundo);color:var(--blanco);padding:12px 18px;border-radius:4px;font-size:14px;max-width:90%;z-index:9;display:none}
+.toast.ver{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- 1. Ingreso -->
+<section id="ingreso" class="pantalla oscuro" aria-label="Ingreso">
+  <svg class="malla" aria-hidden="true" viewBox="0 0 390 420" preserveAspectRatio="none"><g fill="none" stroke="#04FBF9" stroke-width="1">
+    <path d="M-20 300 C 80 120, 220 380, 410 160"/><path d="M-20 320 C 90 150, 230 360, 410 190"/><path d="M-20 340 C 100 180, 240 340, 410 220"/><path d="M-20 360 C 110 210, 250 320, 410 250"/>
+    <path d="M-20 200 C 120 380, 260 120, 410 300"/><path d="M-20 225 C 130 360, 270 140, 410 320"/><path d="M-20 250 C 140 340, 280 160, 410 340"/><path d="M-20 275 C 150 320, 290 180, 410 360"/></g></svg>
+  <img class="logo" src="logo-negativo.png" alt="Mercadeando" width="200">
+  <div style="margin-top:56px">
+    <p class="eyebrow">Encuestas en campo</p>
+    <h1 style="font-size:32px;margin-top:8px">Ingresa con tu código de encuestador</h1>
+    <div class="subrayado"></div>
+  </div>
+  <form id="form-ingreso" style="margin-top:36px;display:flex;flex-direction:column;gap:18px" novalidate>
+    <div class="campo"><label for="codigo">Código de encuestador</label>
+      <input id="codigo" autocomplete="username" autocapitalize="characters" spellcheck="false" required></div>
+    <div class="campo"><label for="pin">PIN</label>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required></div>
+    <p class="aviso-error" id="error-ingreso" role="alert"></p>
+    <button class="btn btn-celeste" id="btn-ingresar" type="submit">Ingresar</button>
+  </form>
+  <div class="crece"></div>
+  <p style="margin:24px 0 0;font-size:12px;line-height:1.5;color:var(--plomo)">Funciona sin internet. Tus encuestas se guardan en el celular y se envían solas cuando vuelve la señal.</p>
+</section>
+
+<!-- 2. Mis encuestas -->
+<section id="lista" class="pantalla" aria-label="Mis encuestas">
+  <div class="cabecera">
+    <div class="fila">
+      <img class="logo" src="logo-negativo.png" alt="Mercadeando" width="140">
+      <span class="crece"></span>
+      <button class="icono-btn" id="btn-actualizar" aria-label="Actualizar encuestas"><svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+      <button class="icono-btn" id="btn-salir" aria-label="Cerrar sesión"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
+    </div>
+    <div>
+      <p style="margin:0;font-size:13px;color:var(--plomo)" id="saludo"></p>
+      <h1 style="font-size:28px;margin-top:4px">Mis encuestas</h1>
+    </div>
+    <button class="estado" id="estado-envio" type="button">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+      <span class="crece" id="estado-texto"></span><small id="estado-red"></small>
+    </button>
+  </div>
+  <div class="cuerpo-gris">
+    <p class="eyebrow">Asignadas a ti</p>
+    <div id="tarjetas" style="display:flex;flex-direction:column;gap:12px"></div>
+    <button class="btn btn-texto" id="btn-historial" style="color:var(--celeste-texto)">Ver encuestas hechas en este celular</button>
+  </div>
+</section>
+
+<!-- 3. Pregunta -->
+<section id="encuesta" class="pantalla" aria-label="Encuesta">
+  <div class="barra-sup">
+    <div class="fila">
+      <button class="icono-btn" id="btn-cancelar" aria-label="Salir de la encuesta" style="margin-left:-12px;color:var(--azul)"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>
+      <span class="crece meta" id="enc-nombre"></span>
+      <span class="cifra" style="font-size:13px" id="enc-paso"></span>
+    </div>
+    <div class="progreso"><i id="enc-barra" style="width:0"></i></div>
+  </div>
+  <div id="zona-pregunta"></div>
+  <div class="pie">
+    <button class="btn btn-borde" id="btn-anterior" style="flex:1">Anterior</button>
+    <button class="btn btn-azul" id="btn-siguiente" style="flex:2">Siguiente</button>
+  </div>
+</section>
+
+<!-- 4. Fin -->
+<section id="fin" class="pantalla oscuro" aria-label="Encuesta terminada">
+  <div class="circulo" id="fin-circulo"></div>
+  <p class="eyebrow" style="margin-top:36px" id="fin-eyebrow"></p>
+  <h1 style="font-size:30px;margin-top:8px" id="fin-titulo"></h1>
+  <div class="subrayado"></div>
+  <p style="margin:20px 0 0;font-size:15px;line-height:1.6;color:var(--plomo)" id="fin-texto"></p>
+  <div class="resumen" id="fin-resumen"></div>
+  <div class="crece" style="min-height:32px"></div>
+  <button class="btn btn-celeste" id="btn-otra">Nueva encuesta</button>
+  <button class="btn btn-texto" id="btn-volver" style="margin-top:8px">Volver a mis encuestas</button>
+</section>
+
+<!-- 5. Historial -->
+<section id="historial" class="pantalla" aria-label="Encuestas hechas">
+  <div class="cabecera">
+    <div class="fila">
+      <button class="icono-btn" id="btn-hist-volver" aria-label="Volver" style="margin-left:-12px"><svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h1 style="font-size:24px" class="crece">Encuestas hechas</h1>
+    </div>
+    <div class="leyenda" style="color:var(--plomo)">
+      <span class="distintivo d-enviada" id="cuenta-enviadas"></span>
+      <span class="distintivo d-pendiente" id="cuenta-pendientes"></span>
+    </div>
+  </div>
+  <div class="cuerpo-gris">
+    <button class="btn btn-azul" id="btn-enviar-ahora">Enviar pendientes ahora</button>
+    <div id="lista-historial" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+</section>
+
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+'use strict';
+var API = (window.CONFIG && window.CONFIG.API_URL) || '';
+
+/* ---------- utilidades ---------- */
+function $(s) { return document.querySelector(s); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+var almacen = {
+  get: function (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+function uuid() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+}
+async function huella(t) {
+  try {
+    var b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
+    return Array.from(new Uint8Array(b)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+  } catch (e) { return btoa(unescape(encodeURIComponent(t))); }
+}
+function hora(ts) { var d = new Date(ts); return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }) + ' · ' + d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }); }
+var tToast;
+function aviso(m) { var t = $('#toast'); t.textContent = m; t.classList.add('ver'); clearTimeout(tToast); tToast = setTimeout(function () { t.classList.remove('ver'); }, 3200); }
+var IC = {
+  check: '<svg class="ic" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>',
+  reloj: '<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  alerta: '<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16.5v.01"/></svg>',
+  nube: '<svg class="ic" viewBox="0 0 24 24"><path d="M7 18a5 5 0 1 1 .9-9.9A6 6 0 0 1 19 10a4 4 0 0 1 0 8z"/><path d="M12 12v6"/><path d="M9.5 14.5L12 12l2.5 2.5"/></svg>'
+};
+function distintivo(estado) {
+  if (estado === 'enviada') return '<span class="distintivo d-enviada">' + IC.check + 'Enviada</span>';
+  if (estado === 'error') return '<span class="distintivo d-error">' + IC.alerta + 'No se pudo enviar</span>';
+  return '<span class="distintivo d-pendiente">' + IC.reloj + 'Pendiente de envío</span>';
+}
+
+/* ---------- cola en el celular (IndexedDB) ---------- */
+function abrirDB() {
+  return new Promise(function (ok, mal) {
+    var r = indexedDB.open('mercadeando-encuestas', 1);
+    r.onupgradeneeded = function () { r.result.createObjectStore('cola', { keyPath: 'uuid' }); };
+    r.onsuccess = function () { ok(r.result); };
+    r.onerror = function () { mal(r.error); };
+  });
+}
+function tx(modo, fn) {
+  return abrirDB().then(function (db) {
+    return new Promise(function (ok, mal) {
+      var t = db.transaction('cola', modo), req = fn(t.objectStore('cola'));
+      t.oncomplete = function () { ok(req && req.result); };
+      t.onerror = function () { mal(t.error); };
+    });
+  });
+}
+var cola = {
+  poner: function (x) { return tx('readwrite', function (s) { return s.put(x); }); },
+  quitar: function (id) { return tx('readwrite', function (s) { return s.delete(id); }); },
+  todas: function () { return tx('readonly', function (s) { return s.getAll(); }); }
+};
+
+/* ---------- historial (distintivo enviada / pendiente) ---------- */
+function historial() { return almacen.get('historial', []); }
+function guardarHist(h) { almacen.set('historial', h.slice(0, 300)); }
+function marcar(id, estado, detalle) {
+  var h = historial();
+  h.forEach(function (x) { if (x.uuid === id) { x.estado = estado; x.detalle = detalle || ''; if (estado === 'enviada') x.enviadaEn = Date.now(); } });
+  guardarHist(h);
+}
+
+/* ---------- navegación ---------- */
+var sesion = almacen.get('sesion', null);
+function ver(id) {
+  document.querySelectorAll('.pantalla').forEach(function (p) { p.classList.toggle('activa', p.id === id); });
+  window.scrollTo(0, 0);
+  if (id === 'lista') pintarLista();
+  if (id === 'historial') pintarHistorial();
+}
+
+/* ---------- ingreso ---------- */
+$('#form-ingreso').addEventListener('submit', async function (ev) {
+  ev.preventDefault();
+  var codigo = $('#codigo').value.trim().toUpperCase(), pin = $('#pin').value.trim();
+  var err = $('#error-ingreso'); err.textContent = '';
+  if (!codigo || !pin) { err.textContent = 'Escribe tu código y tu PIN.'; return; }
+  var btn = $('#btn-ingresar'); btn.disabled = true; btn.textContent = 'Ingresando…';
+  var h = await huella(codigo + '|' + pin);
+  try {
+    if (!API) throw { msg: 'Falta configurar la dirección del servidor (config.js).' };
+    var j = await (await fetch(API + '?action=login&codigo=' + encodeURIComponent(codigo) + '&pin=' + encodeURIComponent(pin))).json();
+    if (!j.ok) throw { msg: j.error || 'No se pudo ingresar.' };
+    sesion = { codigo: j.codigo, nombre: j.nombre, encuestas: j.encuestas, huella: h, actualizado: Date.now(), activa: true };
+    almacen.set('sesion', sesion); almacen.set('k', pin);
+    $('#pin').value = '';
+    ver('lista'); sincronizar();
+  } catch (e) {
+    var previa = almacen.get('sesion', null);
+    if (!e.msg && previa && previa.codigo === codigo && previa.huella === h) {
+      sesion = previa; sesion.activa = true; almacen.set('sesion', sesion); almacen.set('k', pin);
+      $('#pin').value = ''; ver('lista'); aviso('Sin conexión: usando las encuestas guardadas.');
+    } else {
+      err.textContent = e.msg || 'Sin conexión. La primera vez necesitas internet para ingresar.';
+    }
+  } finally { btn.disabled = false; btn.textContent = 'Ingresar'; }
+});
+
+$('#btn-salir').addEventListener('click', function () {
+  if (sesion) { sesion.activa = false; almacen.set('sesion', sesion); }
+  almacen.set('k', '');
+  $('#codigo').value = sesion ? sesion.codigo : '';
+  ver('ingreso');
+});
+
+$('#btn-actualizar').addEventListener('click', async function () {
+  if (!navigator.onLine) { aviso('Sin conexión. Inténtalo cuando tengas señal.'); return; }
+  aviso('Actualizando…');
+  await sincronizar();
+  aviso('Encuestas actualizadas.');
+});
+
+/* ---------- lista ---------- */
+async function pintarLista() {
+  if (!sesion) return;
+  $('#saludo').textContent = 'Hola, ' + sesion.nombre;
+  var h = historial().filter(function (x) { return x.encuestador === sesion.codigo; });
+  var cont = $('#tarjetas');
+  if (!sesion.encuestas || !sesion.encuestas.length) {
+    cont.innerHTML = '<div class="vacio">No tienes encuestas activas. Pide a tu supervisor que active una en la hoja y pulsa el botón de actualizar.</div>';
+  } else {
+    cont.innerHTML = sesion.encuestas.map(function (e, i) {
+      var mias = h.filter(function (x) { return x.encuesta_id === e.id; });
+      var pend = mias.filter(function (x) { return x.estado !== 'enviada'; }).length;
+      var total = (e.hechas || 0) + pend;
+      var pct = e.meta ? Math.min(100, Math.round(total * 100 / e.meta)) : 0;
+      return '<button class="tarjeta" data-i="' + i + '">' +
+        '<span class="tarjeta-titulo">' + esc(e.nombre) + '</span>' +
+        (e.descripcion ? '<span class="meta">' + esc(e.descripcion) + '</span>' : '') +
+        '<span class="meta">' + e.preguntas.length + ' preguntas</span>' +
+        '<span class="fila"><span class="barra"><i style="width:' + pct + '%"></i></span>' +
+        '<span class="cifra">' + total + (e.meta ? ' / ' + e.meta : '') + '</span></span>' +
+        (pend ? '<span>' + distintivo('pendiente') + ' <span class="meta">' + pend + ' en este celular</span></span>' : '') +
+        '</button>';
+    }).join('');
+    cont.querySelectorAll('.tarjeta').forEach(function (b) { b.addEventListener('click', function () { empezar(sesion.encuestas[+b.dataset.i]); }); });
+  }
+  pintarEstado();
+}
+
+async function pintarEstado() {
+  var n = 0; try { n = (await cola.todas()).length; } catch (e) {}
+  $('#estado-texto').textContent = n ? (n === 1 ? '1 encuesta pendiente de envío' : n + ' encuestas pendientes de envío') : 'Todo enviado';
+  $('#estado-red').textContent = navigator.onLine ? 'Con señal' : 'Sin señal';
+}
+$('#estado-envio').addEventListener('click', function () { ver('historial'); });
+$('#btn-historial').addEventListener('click', function () { ver('historial'); });
+
+/* ---------- historial ---------- */
+function pintarHistorial() {
+  var h = historial().filter(function (x) { return !sesion || x.encuestador === sesion.codigo; });
+  var env = h.filter(function (x) { return x.estado === 'enviada'; }).length;
+  $('#cuenta-enviadas').innerHTML = IC.check + env + (env === 1 ? ' enviada' : ' enviadas');
+  $('#cuenta-pendientes').innerHTML = IC.reloj + (h.length - env) + (h.length - env === 1 ? ' pendiente' : ' pendientes');
+  $('#btn-enviar-ahora').style.display = h.length - env ? 'flex' : 'none';
+  $('#lista-historial').innerHTML = h.length ? h.map(function (x) {
+    return '<div class="item-hist"><div class="fila"><b>' + esc(x.nombre) + '</b>' + distintivo(x.estado) + '</div>' +
+      '<span class="detalle">Hecha el ' + hora(x.fecha) + (x.estado === 'enviada' && x.enviadaEn ? ' · enviada el ' + hora(x.enviadaEn) : '') + '</span>' +
+      (x.resumen ? '<span class="detalle">' + esc(x.resumen) + '</span>' : '') +
+      (x.estado === 'error' && x.detalle ? '<span class="detalle" style="color:var(--error)">' + esc(x.detalle) + '</span>' : '') +
+      '</div>';
+  }).join('') : '<div class="vacio">Aún no has hecho encuestas en este celular.</div>';
+}
+$('#btn-hist-volver').addEventListener('click', function () { ver('lista'); });
+$('#btn-enviar-ahora').addEventListener('click', async function () {
+  if (!navigator.onLine) { aviso('Sin conexión. Se enviarán solas cuando vuelva la señal.'); return; }
+  aviso('Enviando…'); await sincronizar(); pintarHistorial();
+});
+
+/* ---------- encuesta ---------- */
+var corrida = null;
+function cumple(cond, resp) {
+  if (!cond) return true;
+  var m = String(cond).match(/^\s*([^=!]+?)\s*(!=|=)\s*(.+?)\s*$/);
+  if (!m) return true;
+  var v = resp[m[1]], igual = Array.isArray(v) ? v.indexOf(m[3]) >= 0 : String(v == null ? '' : v) === m[3];
+  return m[2] === '=' ? igual : !igual;
+}
+function visibles() { return corrida.enc.preguntas.filter(function (q) { return cumple(q.mostrar_si, corrida.resp); }); }
+function opciones(q) { return String(q.opciones || '').split('|').map(function (s) { return s.trim(); }).filter(Boolean); }
+
+function empezar(enc) {
+  corrida = { enc: enc, resp: {}, actual: enc.preguntas[0] && enc.preguntas[0].id, inicio: Date.now(), gps: null, uuid: uuid() };
+  if (!corrida.actual) { aviso('Esta encuesta no tiene preguntas.'); return; }
+  if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function (p) {
+    if (corrida) corrida.gps = { lat: +p.coords.latitude.toFixed(6), lng: +p.coords.longitude.toFixed(6), acc: p.coords.accuracy };
+  }, function () {}, { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 });
+  $('#enc-nombre').textContent = enc.nombre;
+  ver('encuesta'); pintarPregunta();
+}
+
+function pintarPregunta() {
+  var vs = visibles(), idx = vs.findIndex(function (q) { return q.id === corrida.actual; });
+  if (idx < 0) { idx = 0; corrida.actual = vs[0].id; }
+  var q = vs[idx], r = corrida.resp[q.id];
+  $('#enc-paso').textContent = (idx + 1) + ' / ' + vs.length;
+  $('#enc-barra').style.width = Math.round((idx + 1) * 100 / vs.length) + '%';
+  $('#btn-anterior').style.visibility = idx === 0 ? 'hidden' : 'visible';
+  $('#btn-siguiente').textContent = idx === vs.length - 1 ? 'Terminar' : 'Siguiente';
+  var ayuda = { unica: 'Elija una opción.', multiple: 'Puede elegir varias opciones.', escala: 'Elija un número.', numero: 'Escriba un número.', texto: 'Escriba la respuesta.', foto: 'Tome una foto con la cámara.' }[q.tipo] || '';
+  var h = '<p class="eyebrow">Pregunta ' + (idx + 1) + (q.obligatoria ? '' : ' · opcional') + '</p>' +
+    '<h1>' + esc(q.pregunta) + '</h1><p class="ayuda">' + ayuda + '</p>';
+  if (q.tipo === 'unica' || q.tipo === 'multiple') {
+    var multi = q.tipo === 'multiple', sel = multi ? (r || []) : r;
+    h += '<div class="opciones" role="' + (multi ? 'group' : 'radiogroup') + '">' + opciones(q).map(function (o, i) {
+      var on = multi ? sel.indexOf(o) >= 0 : sel === o;
+      return '<button type="button" class="opcion' + (multi ? ' cuadro' : '') + (on ? ' sel' : '') + '" data-o="' + i + '" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '"><span class="marca"></span><span>' + esc(o) + '</span></button>';
+    }).join('') + '</div>';
+  } else if (q.tipo === 'escala') {
+    var partes = String(q.opciones || '1-5').split('|'), lim = partes[0].split('-').map(Number), min = isNaN(lim[0]) ? 1 : lim[0], max = isNaN(lim[1]) ? 5 : lim[1], nums = [];
+    var etqMin = (partes[1] || '').trim(), etqMax = (partes[2] || '').trim();
+    for (var n = min; n <= max; n++) nums.push(n);
+    h += '<div class="escala" role="radiogroup">' + nums.map(function (n) {
+      return '<button type="button" class="opcion' + (r === n ? ' sel' : '') + '" data-n="' + n + '" role="radio" aria-checked="' + (r === n) + '">' + n + '</button>';
+    }).join('') + '</div>' + (etqMin || etqMax ? '<div class="escala-pie"><span>' + min + ' = ' + esc(etqMin) + '</span><span>' + max + ' = ' + esc(etqMax) + '</span></div>' : '');
+  } else if (q.tipo === 'numero') {
+    h += '<label class="ayuda" for="resp" style="position:absolute;left:-9999px">Respuesta</label><input class="entrada" id="resp" type="number" inputmode="decimal" value="' + esc(r == null ? '' : r) + '">';
+  } else if (q.tipo === 'foto') {
+    h += '<label class="btn btn-borde" for="resp" style="cursor:pointer">' + (r ? 'Tomar otra foto' : 'Tomar foto') + '</label>' +
+      '<input id="resp" type="file" accept="image/*" capture="environment" style="position:absolute;left:-9999px">' +
+      (r ? '<img class="foto-prev" src="' + r + '" alt="Foto tomada">' : '');
+  } else {
+    h += '<label for="resp" style="position:absolute;left:-9999px">Respuesta</label><textarea class="entrada" id="resp">' + esc(r || '') + '</textarea>';
+  }
+  h += '<p class="error-preg" id="error-preg" role="alert"></p>';
+  var z = $('#zona-pregunta'); z.innerHTML = h;
+
+  z.querySelectorAll('[data-o]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var o = opciones(q)[+b.dataset.o];
+      if (q.tipo === 'multiple') {
+        var a = (corrida.resp[q.id] || []).slice(), k = a.indexOf(o);
+        if (k >= 0) a.splice(k, 1); else a.push(o);
+        corrida.resp[q.id] = a;
+      } else corrida.resp[q.id] = o;
+      pintarPregunta();
+    });
+  });
+  z.querySelectorAll('[data-n]').forEach(function (b) { b.addEventListener('click', function () { corrida.resp[q.id] = +b.dataset.n; pintarPregunta(); }); });
+  var inp = $('#resp');
+  if (inp && q.tipo === 'foto') inp.addEventListener('change', async function () {
+    if (!inp.files[0]) return;
+    try { corrida.resp[q.id] = await comprimir(inp.files[0]); pintarPregunta(); } catch (e) { aviso('No se pudo leer la foto.'); }
+  });
+  else if (inp) inp.addEventListener('input', function () { corrida.resp[q.id] = q.tipo === 'numero' ? (inp.value === '' ? '' : Number(inp.value)) : inp.value; });
+}
+
+function comprimir(archivo) {
+  return new Promise(function (ok, mal) {
+    var img = new Image(), url = URL.createObjectURL(archivo);
+    img.onload = function () {
+      var k = Math.min(1, 1280 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); ok(c.toDataURL('image/jpeg', 0.7));
+    };
+    img.onerror = mal; img.src = url;
+  });
+}
+
+function vacia(v) { return v == null || v === '' || (Array.isArray(v) && !v.length); }
+
+$('#btn-siguiente').addEventListener('click', function () {
+  var vs = visibles(), idx = vs.findIndex(function (q) { return q.id === corrida.actual; }), q = vs[idx];
+  if (q.obligatoria && vacia(corrida.resp[q.id])) { $('#error-preg').textContent = 'Esta pregunta es obligatoria.'; return; }
+  vs = visibles(); idx = vs.findIndex(function (x) { return x.id === q.id; });
+  if (idx < vs.length - 1) { corrida.actual = vs[idx + 1].id; pintarPregunta(); window.scrollTo(0, 0); }
+  else terminar();
+});
+$('#btn-anterior').addEventListener('click', function () {
+  var vs = visibles(), idx = vs.findIndex(function (q) { return q.id === corrida.actual; });
+  if (idx > 0) { corrida.actual = vs[idx - 1].id; pintarPregunta(); }
+});
+$('#btn-cancelar').addEventListener('click', function () {
+  if (confirmarSalida()) { corrida = null; ver('lista'); }
+});
+function confirmarSalida() {
+  var b = $('#btn-cancelar');
+  if (b.dataset.armado) { delete b.dataset.armado; return true; }
+  b.dataset.armado = '1'; aviso('Toca la X otra vez para salir sin guardar.');
+  setTimeout(function () { delete b.dataset.armado; }, 3500);
+  return false;
+}
+
+async function terminar() {
+  var vs = visibles(), resp = {};
+  vs.forEach(function (q) { if (!vacia(corrida.resp[q.id])) resp[q.id] = corrida.resp[q.id]; });
+  var fin = Date.now();
+  var envio = { uuid: corrida.uuid, encuesta_id: corrida.enc.id, encuestador: sesion.codigo, inicio: corrida.inicio, fin: fin, gps: corrida.gps, respuestas: resp };
+  try { await cola.poner(envio); } catch (e) { aviso('No se pudo guardar en el celular. Revisa el espacio libre.'); return; }
+  var primera = vs.find(function (q) { return q.tipo === 'texto' && resp[q.id]; });
+  var h = historial();
+  h.unshift({ uuid: envio.uuid, encuesta_id: corrida.enc.id, nombre: corrida.enc.nombre, encuestador: sesion.codigo, fecha: fin, estado: 'pendiente', resumen: primera ? String(resp[primera.id]).slice(0, 60) : '' });
+  guardarHist(h);
+  var datos = { enc: corrida.enc, dur: fin - corrida.inicio, gps: !!corrida.gps };
+  corrida = null;
+  $('#btn-siguiente').disabled = true;
+  await sincronizar();
+  $('#btn-siguiente').disabled = false;
+  pintarFin(datos, envio.uuid);
+}
+
+async function pintarFin(d, id) {
+  var item = historial().find(function (x) { return x.uuid === id; }), enviada = item && item.estado === 'enviada';
+  var pend = 0; try { pend = (await cola.todas()).length; } catch (e) {}
+  $('#fin-circulo').style.background = enviada ? 'var(--celeste)' : 'var(--plomo)';
+  $('#fin-circulo').innerHTML = enviada ? IC.check : IC.reloj;
+  $('#fin-eyebrow').textContent = d.enc.nombre;
+  $('#fin-titulo').textContent = enviada ? 'Encuesta enviada' : 'Encuesta guardada en tu celular';
+  $('#fin-texto').textContent = enviada ? 'Ya llegó a Mercadeando. Puedes empezar la siguiente.' :
+    (item && item.estado === 'error' ? 'El servidor no la aceptó: ' + (item.detalle || '') + '. Avisa a tu supervisor.' : 'No hay señal ahora. Se enviará sola en cuanto el celular vuelva a conectarse.');
+  var min = Math.floor(d.dur / 60000), seg = Math.round(d.dur % 60000 / 1000);
+  $('#fin-resumen').innerHTML =
+    '<div class="fila"><span>Estado</span>' + distintivo(item ? item.estado : 'pendiente') + '</div>' +
+    '<div class="fila"><span>Pendientes de envío</span><b>' + pend + '</b></div>' +
+    '<div class="fila"><span>Ubicación registrada</span><b>' + (d.gps ? 'Sí' : 'No') + '</b></div>' +
+    '<div class="fila"><span>Duración</span><b>' + min + ' min ' + seg + ' s</b></div>';
+  $('#btn-otra').onclick = function () { empezar(d.enc); };
+  ver('fin');
+}
+$('#btn-volver').addEventListener('click', function () { ver('lista'); });
+
+/* ---------- envío ---------- */
+var enviando = false;
+async function sincronizar() {
+  if (enviando || !API) return;
+  enviando = true;
+  try {
+    var items = [];
+    try { items = await cola.todas(); } catch (e) {}
+    for (var i = 0; i < items.length; i++) {
+      if (!navigator.onLine) break;
+      try {
+        var r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(items[i]) });
+        var j = await r.json();
+        if (j.ok) { await cola.quitar(items[i].uuid); marcar(items[i].uuid, 'enviada'); }
+        else marcar(items[i].uuid, 'error', j.error);
+      } catch (e) { break; }
+    }
+    if (sesion && sesion.activa && navigator.onLine) {
+      try {
+        // refresca encuestas y avance sin pedir el PIN otra vez
+        var j2 = await (await fetch(API + '?action=login&codigo=' + encodeURIComponent(sesion.codigo) + '&pin=' + encodeURIComponent(almacen.get('k', '')))).json();
+        if (j2.ok) { sesion.encuestas = j2.encuestas; sesion.nombre = j2.nombre; almacen.set('sesion', sesion); }
+      } catch (e) {}
+    }
+  } finally {
+    enviando = false;
+    if ($('#lista').classList.contains('activa')) pintarLista();
+    if ($('#historial').classList.contains('activa')) pintarHistorial();
+  }
+}
+window.addEventListener('online', function () { pintarEstado(); sincronizar(); });
+window.addEventListener('offline', pintarEstado);
+setInterval(sincronizar, 60000);
+
+/* ---------- arranque ---------- */
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js');
+if (sesion && sesion.activa) { ver('lista'); sincronizar(); }
+else { if (sesion) $('#codigo').value = sesion.codigo; ver('ingreso'); }
+})();
+</script>
+</body>
+</html>
