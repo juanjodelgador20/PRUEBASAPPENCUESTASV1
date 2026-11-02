@@ -1,0 +1,16 @@
+{
+  "name": "Encuestas Mercadeando",
+  "short_name": "Encuestas",
+  "description": "Encuestas en campo de Mercadeando, con funcionamiento sin conexión.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#00162B",
+  "theme_color": "#00162B",
+  "lang": "es",
+  "icons": [
+    { "src": "icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
