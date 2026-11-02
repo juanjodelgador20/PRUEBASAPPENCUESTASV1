@@ -1,5 +1,5 @@
 // Guarda la app en el celular para que abra sin internet.
-var VERSION = 'encuestas-v1';
+var VERSION = 'encuestas-v3';
 var ARCHIVOS = ['./', 'index.html', 'config.js', 'manifest.json', 'logo-negativo.png', 'icono-192.png', 'icono-512.png'];
 
 self.addEventListener('install', function (e) {

@@ -84,6 +84,16 @@ svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;str
 .item-hist .detalle{font-size:12px;color:var(--secundario)}
 .leyenda{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--secundario)}
 
+/* Ficha */
+.form-claro{padding:24px 20px 32px;display:flex;flex-direction:column;gap:18px;background:var(--gris);flex:1}
+.campo-claro{display:flex;flex-direction:column;gap:6px}
+.campo-claro label{font-size:13px;font-weight:600;color:var(--azul)}
+.campo-claro .nota{font-size:12px;color:var(--secundario)}
+.check{display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--cuerpo);cursor:pointer}
+.check input{width:22px;height:22px;flex-shrink:0;margin:0;accent-color:var(--azul)}
+.zona-linea{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--plomo);flex-wrap:wrap}
+.zona-linea button{background:transparent;border:0;color:var(--celeste);font-weight:700;font-size:13px;padding:6px 0;cursor:pointer;text-decoration:underline}
+
 /* Pregunta */
 .barra-sup{padding:calc(env(safe-area-inset-top) + 16px) 20px 0;display:flex;flex-direction:column;gap:14px;background:var(--blanco)}
 .progreso{height:4px;background:var(--gris)}
@@ -104,6 +114,14 @@ svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;str
 .entrada{width:100%;min-height:56px;padding:14px 16px;border:1px solid var(--divisor);border-radius:4px;font-size:16px;color:var(--cuerpo);background:var(--blanco)}
 textarea.entrada{min-height:140px;resize:vertical}
 .entrada:focus{outline:2px solid var(--celeste);outline-offset:1px;border-color:var(--azul)}
+.items{display:flex;flex-direction:column;gap:14px;margin-top:4px}
+.item{border:1px solid var(--divisor);border-radius:4px;padding:14px;display:flex;flex-direction:column;gap:10px;scroll-margin-top:90px}
+.item-titulo{margin:0;font-size:15px;font-weight:600;line-height:1.4;color:var(--azul)}
+.item .escala .opcion{min-height:48px;font-size:17px}
+.opciones.compactas{gap:8px}
+.opciones.compactas .opcion{min-height:46px;font-size:15px;padding:8px 12px}
+.opcion-extra{margin-top:8px;min-height:46px;font-size:15px}
+select.entrada{appearance:auto;background:var(--blanco)}
 .foto-prev{width:100%;max-height:300px;object-fit:cover;border-radius:8px;margin-top:12px}
 .error-preg{color:var(--error);font-size:14px;font-weight:600;min-height:20px;margin:8px 0 0}
 .pie{padding:14px 20px calc(env(safe-area-inset-bottom) + 20px);display:flex;gap:12px;border-top:1px solid var(--divisor);background:var(--blanco)}
@@ -158,6 +176,7 @@ textarea.entrada{min-height:140px;resize:vertical}
     </div>
     <div>
       <p style="margin:0;font-size:13px;color:var(--plomo)" id="saludo"></p>
+      <p class="zona-linea" style="margin:2px 0 0"><span id="zona-actual"></span><button type="button" id="btn-zona">Cambiar zona</button></p>
       <h1 style="font-size:28px;margin-top:4px">Mis encuestas</h1>
     </div>
     <button class="estado" id="estado-envio" type="button">
@@ -170,6 +189,32 @@ textarea.entrada{min-height:140px;resize:vertical}
     <div id="tarjetas" style="display:flex;flex-direction:column;gap:12px"></div>
     <button class="btn btn-texto" id="btn-historial" style="color:var(--celeste-texto)">Ver encuestas hechas en este celular</button>
   </div>
+</section>
+
+<!-- 2b. Ficha del encuestador -->
+<section id="ficha" class="pantalla" aria-label="Ficha del encuestador">
+  <div class="cabecera">
+    <div class="fila">
+      <img class="logo" src="logo-negativo.png" alt="Mercadeando" width="140">
+      <span class="crece"></span>
+      <button class="icono-btn" id="btn-ficha-volver" aria-label="Volver" style="display:none"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>
+    </div>
+    <div>
+      <p class="eyebrow" style="color:var(--celeste)" id="ficha-eyebrow">Primer ingreso</p>
+      <h1 style="font-size:26px;margin-top:6px" id="ficha-titulo">Completa tu ficha de encuestador</h1>
+      <p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--plomo)" id="ficha-texto">Solo se pide una vez. Tus datos quedan registrados en Mercadeando.</p>
+    </div>
+  </div>
+  <form id="form-ficha" class="form-claro" novalidate>
+    <div class="campo-claro"><label for="f-nombre">Nombres</label><input class="entrada" id="f-nombre" autocomplete="given-name" required></div>
+    <div class="campo-claro"><label for="f-apellido">Apellidos</label><input class="entrada" id="f-apellido" autocomplete="family-name" required></div>
+    <div class="campo-claro"><label for="f-dni">DNI</label><input class="entrada" id="f-dni" inputmode="numeric" maxlength="8" required><span class="nota">8 dígitos</span></div>
+    <div class="campo-claro"><label for="f-celular">Celular</label><input class="entrada" id="f-celular" type="tel" inputmode="numeric" maxlength="9" autocomplete="tel-national" required><span class="nota">9 dígitos, sin +51</span></div>
+    <div class="campo-claro"><label for="f-zona">Zona donde harás las encuestas</label><input class="entrada" id="f-zona" required><span class="nota">Distrito o zona, por ejemplo: San Juan de Lurigancho</span></div>
+    <label class="check" id="f-check"><input type="checkbox" id="f-acepta"><span>Autorizo a Mercadeando a usar estos datos solo para gestionar mi trabajo como encuestador, según la Ley 29733 de Protección de Datos Personales.</span></label>
+    <p class="error-preg" id="error-ficha" role="alert"></p>
+    <button class="btn btn-azul" id="btn-ficha" type="submit">Guardar y continuar</button>
+  </form>
 </section>
 
 <!-- 3. Pregunta -->
@@ -314,15 +359,17 @@ $('#form-ingreso').addEventListener('submit', async function (ev) {
     if (!API) throw { msg: 'Falta configurar la dirección del servidor (config.js).' };
     var j = await (await fetch(API + '?action=login&codigo=' + encodeURIComponent(codigo) + '&pin=' + encodeURIComponent(pin))).json();
     if (!j.ok) throw { msg: j.error || 'No se pudo ingresar.' };
-    sesion = { codigo: j.codigo, nombre: j.nombre, encuestas: j.encuestas, huella: h, actualizado: Date.now(), activa: true };
+    var previaF = almacen.get('sesion', null);
+    var fichaLocal = previaF && previaF.codigo === j.codigo && previaF.fichaPendiente ? previaF.ficha : null;
+    sesion = { codigo: j.codigo, nombre: j.nombre, encuestas: j.encuestas, ficha: fichaLocal || j.ficha || {}, fichaPendiente: !!fichaLocal, huella: h, actualizado: Date.now(), activa: true };
     almacen.set('sesion', sesion); almacen.set('k', pin);
     $('#pin').value = '';
-    ver('lista'); sincronizar();
+    entrar(); sincronizar();
   } catch (e) {
     var previa = almacen.get('sesion', null);
     if (!e.msg && previa && previa.codigo === codigo && previa.huella === h) {
       sesion = previa; sesion.activa = true; almacen.set('sesion', sesion); almacen.set('k', pin);
-      $('#pin').value = ''; ver('lista'); aviso('Sin conexión: usando las encuestas guardadas.');
+      $('#pin').value = ''; entrar(); aviso('Sin conexión: usando las encuestas guardadas.');
     } else {
       err.textContent = e.msg || 'Sin conexión. La primera vez necesitas internet para ingresar.';
     }
@@ -343,10 +390,64 @@ $('#btn-actualizar').addEventListener('click', async function () {
   aviso('Encuestas actualizadas.');
 });
 
+/* ---------- ficha del encuestador ---------- */
+function fichaCompleta() { var f = sesion && sesion.ficha; return !!(f && f.nombre && f.apellido && f.dni && f.celular && f.zona); }
+function entrar() { if (fichaCompleta()) ver('lista'); else abrirFicha(false); }
+function abrirFicha(edicion) {
+  var f = (sesion && sesion.ficha) || {};
+  $('#f-nombre').value = f.nombre || '';
+  $('#f-apellido').value = f.apellido || '';
+  $('#f-dni').value = f.dni || '';
+  $('#f-celular').value = f.celular || '';
+  $('#f-zona').value = f.zona || '';
+  $('#f-acepta').checked = !!edicion;
+  $('#error-ficha').textContent = '';
+  $('#ficha-eyebrow').textContent = edicion ? 'Mis datos' : 'Primer ingreso';
+  $('#ficha-titulo').textContent = edicion ? 'Actualiza tu zona o tus datos' : 'Completa tu ficha de encuestador';
+  $('#ficha-texto').textContent = edicion ? 'La zona que indiques se guarda en cada encuesta que hagas desde ahora.' : 'Solo se pide una vez. Tus datos quedan registrados en Mercadeando.';
+  $('#btn-ficha-volver').style.display = edicion ? 'flex' : 'none';
+  ver('ficha');
+  if (edicion) setTimeout(function () { $('#f-zona').focus(); $('#f-zona').select(); }, 50);
+}
+$('#btn-zona').addEventListener('click', function () { abrirFicha(true); });
+$('#btn-ficha-volver').addEventListener('click', function () { ver('lista'); });
+$('#form-ficha').addEventListener('submit', async function (ev) {
+  ev.preventDefault();
+  var f = {
+    nombre: $('#f-nombre').value.trim(), apellido: $('#f-apellido').value.trim(),
+    dni: $('#f-dni').value.replace(/\D/g, ''), celular: $('#f-celular').value.replace(/\D/g, ''),
+    zona: $('#f-zona').value.trim(), acepta_datos: $('#f-acepta').checked
+  };
+  var err = $('#error-ficha');
+  if (!f.nombre || !f.apellido || !f.zona) { err.textContent = 'Completa todos los campos.'; return; }
+  if (f.dni.length !== 8) { err.textContent = 'El DNI debe tener 8 dígitos.'; return; }
+  if (f.celular.length !== 9) { err.textContent = 'El celular debe tener 9 dígitos.'; return; }
+  if (!f.acepta_datos) { err.textContent = 'Debes marcar la autorización de datos personales.'; return; }
+  err.textContent = '';
+  sesion.ficha = f; sesion.nombre = f.nombre; sesion.fichaPendiente = true; almacen.set('sesion', sesion);
+  var btn = $('#btn-ficha'); btn.disabled = true; btn.textContent = 'Guardando…';
+  var r = await enviarFicha();
+  btn.disabled = false; btn.textContent = 'Guardar y continuar';
+  if (r && r.error) { err.textContent = r.error; return; }
+  aviso(r && r.ok ? 'Datos guardados.' : 'Datos guardados en el celular. Se enviarán cuando haya señal.');
+  ver('lista');
+});
+async function enviarFicha() {
+  if (!sesion || !sesion.fichaPendiente || !API || !navigator.onLine) return null;
+  try {
+    var r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ tipo: 'ficha', codigo: sesion.codigo, pin: almacen.get('k', ''), ficha: sesion.ficha }) });
+    var j = await r.json();
+    if (j.ok) { sesion.fichaPendiente = false; almacen.set('sesion', sesion); return { ok: true }; }
+    return { error: j.error || 'No se pudo guardar la ficha.' };
+  } catch (e) { return null; }
+}
+
 /* ---------- lista ---------- */
 async function pintarLista() {
   if (!sesion) return;
   $('#saludo').textContent = 'Hola, ' + sesion.nombre;
+  $('#zona-actual').textContent = 'Zona: ' + ((sesion.ficha && sesion.ficha.zona) || 'sin indicar');
   var h = historial().filter(function (x) { return x.encuestador === sesion.codigo; });
   var cont = $('#tarjetas');
   if (!sesion.encuestas || !sesion.encuestas.length) {
@@ -402,15 +503,63 @@ $('#btn-enviar-ahora').addEventListener('click', async function () {
 
 /* ---------- encuesta ---------- */
 var corrida = null;
+// Condiciones: "p2=Sí", "p2!=No", "p27>=9", "B3=1. Farmacia|2. Café" (cualquiera), varias unidas con " Y "
+function cumpleUna(c, resp) {
+  var m = String(c).match(/^\s*([^=!<>]+?)\s*(>=|<=|!=|=|>|<)\s*(.*?)\s*$/);
+  if (!m) return true;
+  var v = resp[m[1].trim()], op = m[2], vals = m[3].split('|').map(function (x) { return x.trim(); });
+  if (op === '>=' || op === '<=' || op === '>' || op === '<') {
+    if (v == null || v === '' || isNaN(Number(v))) return false;
+    var a = Number(v), b = Number(vals[0]);
+    return op === '>=' ? a >= b : op === '<=' ? a <= b : op === '>' ? a > b : a < b;
+  }
+  var arr = Array.isArray(v) ? v.map(String) : (v == null || v === '' ? [] : [String(v)]);
+  var hay = vals.some(function (x) { return arr.indexOf(x) >= 0; });
+  return op === '=' ? hay : !hay;
+}
 function cumple(cond, resp) {
   if (!cond) return true;
-  var m = String(cond).match(/^\s*([^=!]+?)\s*(!=|=)\s*(.+?)\s*$/);
-  if (!m) return true;
-  var v = resp[m[1]], igual = Array.isArray(v) ? v.indexOf(m[3]) >= 0 : String(v == null ? '' : v) === m[3];
-  return m[2] === '=' ? igual : !igual;
+  return String(cond).split(/\s+Y\s+|\s*&&\s*/).every(function (c) { return cumpleUna(c, resp); });
 }
-function visibles() { return corrida.enc.preguntas.filter(function (q) { return cumple(q.mostrar_si, corrida.resp); }); }
+// Preguntas visibles en orden; las respuestas de preguntas ocultas no cuentan. Se corta en la primera pantalla de fin.
+function visibles() {
+  var vis = [], ef = {};
+  for (var i = 0; i < corrida.enc.preguntas.length; i++) {
+    var q = corrida.enc.preguntas[i];
+    if (!cumple(q.mostrar_si, ef)) continue;
+    vis.push(q);
+    if (q.tipo === 'fin') break;
+    if (corrida.resp[q.id] !== undefined) ef[q.id] = corrida.resp[q.id];
+  }
+  return vis;
+}
+// Preguntas seguidas con el mismo "bloque" van en una sola pantalla
+function pantallas() {
+  var out = [];
+  visibles().forEach(function (q) {
+    var ult = out[out.length - 1];
+    if (q.bloque && q.tipo !== 'fin' && ult && ult[0].bloque === q.bloque && ult[0].tipo !== 'fin') ult.push(q);
+    else out.push([q]);
+  });
+  return out;
+}
 function opciones(q) { return String(q.opciones || '').split('|').map(function (s) { return s.trim(); }).filter(Boolean); }
+function sinCodigo(t) { return String(t).replace(/^\s*[\w]{1,3}[.)]\s+/, ''); }
+function insertar(t) {
+  return String(t || '').replace(/\{([^}]+)\}/g, function (m, id) {
+    var v = corrida.resp[id.trim()];
+    if (v == null || v === '') return '…';
+    return (Array.isArray(v) ? v.map(sinCodigo).join(', ') : sinCodigo(v)).toLowerCase();
+  });
+}
+function escalaDe(q) {
+  var partes = String(q.opciones || '1-5').split('|'), lim = partes[0].split('-').map(Number);
+  var min = isNaN(lim[0]) ? 1 : lim[0], max = isNaN(lim[1]) ? 5 : lim[1], nums = [];
+  for (var n = min; n <= max; n++) nums.push(n);
+  var extra = null, mx = (partes[3] || '').trim().match(/^(\d+)\s*[=.\-]?\s*(.*)$/);
+  if (mx) extra = { v: Number(mx[1]), t: mx[2] || mx[1] };
+  return { min: min, max: max, nums: nums, etqMin: (partes[1] || '').trim(), etqMax: (partes[2] || '').trim(), extra: extra };
+}
 
 function empezar(enc) {
   corrida = { enc: enc, resp: {}, actual: enc.preguntas[0] && enc.preguntas[0].id, inicio: Date.now(), gps: null, uuid: uuid() };
@@ -422,61 +571,93 @@ function empezar(enc) {
   ver('encuesta'); pintarPregunta();
 }
 
-function pintarPregunta() {
-  var vs = visibles(), idx = vs.findIndex(function (q) { return q.id === corrida.actual; });
-  if (idx < 0) { idx = 0; corrida.actual = vs[0].id; }
-  var q = vs[idx], r = corrida.resp[q.id];
-  $('#enc-paso').textContent = (idx + 1) + ' / ' + vs.length;
-  $('#enc-barra').style.width = Math.round((idx + 1) * 100 / vs.length) + '%';
-  $('#btn-anterior').style.visibility = idx === 0 ? 'hidden' : 'visible';
-  $('#btn-siguiente').textContent = idx === vs.length - 1 ? 'Terminar' : 'Siguiente';
-  var ayuda = { unica: 'Elija una opción.', multiple: 'Puede elegir varias opciones.', escala: 'Elija un número.', numero: 'Escriba un número.', texto: 'Escriba la respuesta.', foto: 'Tome una foto con la cámara.' }[q.tipo] || '';
-  var h = '<p class="eyebrow">Pregunta ' + (idx + 1) + (q.obligatoria ? '' : ' · opcional') + '</p>' +
-    '<h1>' + esc(q.pregunta) + '</h1><p class="ayuda">' + ayuda + '</p>';
+function indicePantalla(ps) {
+  var i = ps.findIndex(function (p) { return p.some(function (q) { return q.id === corrida.actual; }); });
+  if (i < 0) { i = 0; corrida.actual = ps[0][0].id; }
+  return i;
+}
+
+function control(q, compacto) {
+  var r = corrida.resp[q.id], h = '', d = ' data-q="' + esc(q.id) + '"';
   if (q.tipo === 'unica' || q.tipo === 'multiple') {
     var multi = q.tipo === 'multiple', sel = multi ? (r || []) : r;
-    h += '<div class="opciones" role="' + (multi ? 'group' : 'radiogroup') + '">' + opciones(q).map(function (o, i) {
+    h += '<div class="opciones' + (compacto ? ' compactas' : '') + '" role="' + (multi ? 'group' : 'radiogroup') + '">' + opciones(q).map(function (o, i) {
       var on = multi ? sel.indexOf(o) >= 0 : sel === o;
-      return '<button type="button" class="opcion' + (multi ? ' cuadro' : '') + (on ? ' sel' : '') + '" data-o="' + i + '" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '"><span class="marca"></span><span>' + esc(o) + '</span></button>';
+      return '<button type="button" class="opcion' + (multi ? ' cuadro' : '') + (on ? ' sel' : '') + '"' + d + ' data-o="' + i + '" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '"><span class="marca"></span><span>' + esc(o) + '</span></button>';
     }).join('') + '</div>';
   } else if (q.tipo === 'escala') {
-    var partes = String(q.opciones || '1-5').split('|'), lim = partes[0].split('-').map(Number), min = isNaN(lim[0]) ? 1 : lim[0], max = isNaN(lim[1]) ? 5 : lim[1], nums = [];
-    var etqMin = (partes[1] || '').trim(), etqMax = (partes[2] || '').trim();
-    for (var n = min; n <= max; n++) nums.push(n);
-    h += '<div class="escala" role="radiogroup">' + nums.map(function (n) {
-      return '<button type="button" class="opcion' + (r === n ? ' sel' : '') + '" data-n="' + n + '" role="radio" aria-checked="' + (r === n) + '">' + n + '</button>';
-    }).join('') + '</div>' + (etqMin || etqMax ? '<div class="escala-pie"><span>' + min + ' = ' + esc(etqMin) + '</span><span>' + max + ' = ' + esc(etqMax) + '</span></div>' : '');
+    var e = escalaDe(q);
+    h += '<div class="escala" role="radiogroup">' + e.nums.map(function (n) {
+      return '<button type="button" class="opcion' + (r === n ? ' sel' : '') + '"' + d + ' data-n="' + n + '" role="radio" aria-checked="' + (r === n) + '">' + n + '</button>';
+    }).join('') + '</div>';
+    if (e.extra) h += '<button type="button" class="opcion opcion-extra' + (r === e.extra.v ? ' sel' : '') + '"' + d + ' data-n="' + e.extra.v + '" role="radio" aria-checked="' + (r === e.extra.v) + '"><span class="marca"></span><span>' + esc(e.extra.t) + '</span></button>';
+    if (!compacto && (e.etqMin || e.etqMax)) h += '<div class="escala-pie"><span>' + e.min + ' = ' + esc(e.etqMin) + '</span><span>' + e.max + ' = ' + esc(e.etqMax) + '</span></div>';
+  } else if (q.tipo === 'lista') {
+    h += '<select class="entrada"' + d + ' data-campo="lista" aria-label="' + esc(q.pregunta) + '"><option value="">Seleccione…</option>' + opciones(q).map(function (o) {
+      return '<option' + (r === o ? ' selected' : '') + '>' + esc(o) + '</option>';
+    }).join('') + '</select>';
   } else if (q.tipo === 'numero') {
-    h += '<label class="ayuda" for="resp" style="position:absolute;left:-9999px">Respuesta</label><input class="entrada" id="resp" type="number" inputmode="decimal" value="' + esc(r == null ? '' : r) + '">';
+    h += '<input class="entrada"' + d + ' data-campo="numero" type="number" inputmode="decimal" aria-label="' + esc(q.pregunta) + '" value="' + esc(r == null ? '' : r) + '">';
   } else if (q.tipo === 'foto') {
-    h += '<label class="btn btn-borde" for="resp" style="cursor:pointer">' + (r ? 'Tomar otra foto' : 'Tomar foto') + '</label>' +
-      '<input id="resp" type="file" accept="image/*" capture="environment" style="position:absolute;left:-9999px">' +
+    h += '<label class="btn btn-borde" for="foto-' + esc(q.id) + '" style="cursor:pointer">' + (r ? 'Tomar otra foto' : 'Tomar foto') + '</label>' +
+      '<input id="foto-' + esc(q.id) + '"' + d + ' data-campo="foto" type="file" accept="image/*" capture="environment" style="position:absolute;left:-9999px">' +
       (r ? '<img class="foto-prev" src="' + r + '" alt="Foto tomada">' : '');
+  } else if (q.tipo !== 'fin') {
+    h += '<textarea class="entrada"' + d + ' data-campo="texto" aria-label="' + esc(q.pregunta) + '">' + esc(r || '') + '</textarea>';
+  }
+  return h;
+}
+
+function pintarPregunta() {
+  var ps = pantallas(), idx = indicePantalla(ps), pant = ps[idx], q = pant[0];
+  var esFin = q.tipo === 'fin', bloque = pant.length > 1 || !!q.bloque;
+  $('#enc-paso').textContent = (idx + 1) + ' / ' + ps.length;
+  $('#enc-barra').style.width = Math.round((idx + 1) * 100 / ps.length) + '%';
+  $('#btn-anterior').style.visibility = idx === 0 ? 'hidden' : 'visible';
+  $('#btn-siguiente').textContent = esFin || idx === ps.length - 1 ? 'Terminar' : 'Siguiente';
+  var ayuda = { unica: 'Elija una opción.', multiple: 'Puede elegir varias opciones.', escala: 'Elija un número.', numero: 'Escriba un número.', texto: 'Escriba la respuesta.', foto: 'Tome una foto con la cámara.', lista: 'Elija de la lista.' }[q.tipo] || '';
+  var h = '<p class="eyebrow">' + esc(q.seccion || ('Pregunta ' + (idx + 1))) + (!esFin && !bloque && !q.obligatoria ? ' · opcional' : '') + '</p>';
+  if (esFin) {
+    h += '<h1>' + esc(insertar(q.pregunta)) + '</h1><p class="ayuda">Toca Terminar para cerrar la encuesta.</p>';
+  } else if (bloque) {
+    var e = q.tipo === 'escala' ? escalaDe(q) : null;
+    h += '<h1>' + esc(insertar(q.bloque)) + '</h1>';
+    if (e && (e.etqMin || e.etqMax)) h += '<p class="ayuda">' + e.min + ' = ' + esc(e.etqMin) + ' · ' + e.max + ' = ' + esc(e.etqMax) + '</p>';
+    else h += '<p class="ayuda"></p>';
+    h += '<div class="items">' + pant.map(function (x) {
+      return '<div class="item" id="item-' + esc(x.id) + '"><p class="item-titulo">' + esc(insertar(x.pregunta)) + (x.obligatoria ? '' : ' <span class="meta">(opcional)</span>') + '</p>' + control(x, true) + '</div>';
+    }).join('') + '</div>';
   } else {
-    h += '<label for="resp" style="position:absolute;left:-9999px">Respuesta</label><textarea class="entrada" id="resp">' + esc(r || '') + '</textarea>';
+    h += '<h1>' + esc(insertar(q.pregunta)) + '</h1><p class="ayuda">' + ayuda + '</p>' + control(q, false);
   }
   h += '<p class="error-preg" id="error-preg" role="alert"></p>';
   var z = $('#zona-pregunta'); z.innerHTML = h;
+  var buscar = function (id) { return corrida.enc.preguntas.find(function (x) { return x.id === id; }); };
 
   z.querySelectorAll('[data-o]').forEach(function (b) {
     b.addEventListener('click', function () {
-      var o = opciones(q)[+b.dataset.o];
-      if (q.tipo === 'multiple') {
-        var a = (corrida.resp[q.id] || []).slice(), k = a.indexOf(o);
+      var x = buscar(b.dataset.q), o = opciones(x)[+b.dataset.o];
+      if (x.tipo === 'multiple') {
+        var a = (corrida.resp[x.id] || []).slice(), k = a.indexOf(o);
         if (k >= 0) a.splice(k, 1); else a.push(o);
-        corrida.resp[q.id] = a;
-      } else corrida.resp[q.id] = o;
-      pintarPregunta();
+        corrida.resp[x.id] = a;
+      } else corrida.resp[x.id] = o;
+      repintar();
     });
   });
-  z.querySelectorAll('[data-n]').forEach(function (b) { b.addEventListener('click', function () { corrida.resp[q.id] = +b.dataset.n; pintarPregunta(); }); });
-  var inp = $('#resp');
-  if (inp && q.tipo === 'foto') inp.addEventListener('change', async function () {
-    if (!inp.files[0]) return;
-    try { corrida.resp[q.id] = await comprimir(inp.files[0]); pintarPregunta(); } catch (e) { aviso('No se pudo leer la foto.'); }
+  z.querySelectorAll('[data-n]').forEach(function (b) { b.addEventListener('click', function () { corrida.resp[b.dataset.q] = +b.dataset.n; repintar(); }); });
+  z.querySelectorAll('[data-campo]').forEach(function (inp) {
+    var x = buscar(inp.dataset.q);
+    if (inp.dataset.campo === 'foto') inp.addEventListener('change', async function () {
+      if (!inp.files[0]) return;
+      try { corrida.resp[x.id] = await comprimir(inp.files[0]); repintar(); } catch (e) { aviso('No se pudo leer la foto.'); }
+    });
+    else if (inp.dataset.campo === 'lista') inp.addEventListener('change', function () { corrida.resp[x.id] = inp.value; repintar(); });
+    else inp.addEventListener('input', function () { corrida.resp[x.id] = x.tipo === 'numero' ? (inp.value === '' ? '' : Number(inp.value)) : inp.value; });
   });
-  else if (inp) inp.addEventListener('input', function () { corrida.resp[q.id] = q.tipo === 'numero' ? (inp.value === '' ? '' : Number(inp.value)) : inp.value; });
 }
+// Repinta conservando la posición de la pantalla (útil en bloques largos)
+function repintar() { var y = window.scrollY; pintarPregunta(); window.scrollTo(0, y); }
 
 function comprimir(archivo) {
   return new Promise(function (ok, mal) {
@@ -494,15 +675,21 @@ function comprimir(archivo) {
 function vacia(v) { return v == null || v === '' || (Array.isArray(v) && !v.length); }
 
 $('#btn-siguiente').addEventListener('click', function () {
-  var vs = visibles(), idx = vs.findIndex(function (q) { return q.id === corrida.actual; }), q = vs[idx];
-  if (q.obligatoria && vacia(corrida.resp[q.id])) { $('#error-preg').textContent = 'Esta pregunta es obligatoria.'; return; }
-  vs = visibles(); idx = vs.findIndex(function (x) { return x.id === q.id; });
-  if (idx < vs.length - 1) { corrida.actual = vs[idx + 1].id; pintarPregunta(); window.scrollTo(0, 0); }
-  else terminar();
+  var ps = pantallas(), idx = indicePantalla(ps), pant = ps[idx];
+  if (pant[0].tipo === 'fin') { terminar(pant[0]); return; }
+  var faltan = pant.filter(function (x) { return x.obligatoria && vacia(corrida.resp[x.id]); });
+  if (faltan.length) {
+    $('#error-preg').textContent = pant.length > 1 ? 'Faltan ' + faltan.length + (faltan.length === 1 ? ' respuesta obligatoria.' : ' respuestas obligatorias.') : 'Esta pregunta es obligatoria.';
+    var el = document.getElementById('item-' + faltan[0].id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  ps = pantallas(); idx = ps.findIndex(function (p) { return p.some(function (x) { return x.id === pant[0].id; }); });
+  if (idx < ps.length - 1) { corrida.actual = ps[idx + 1][0].id; pintarPregunta(); window.scrollTo(0, 0); }
+  else terminar(null);
 });
 $('#btn-anterior').addEventListener('click', function () {
-  var vs = visibles(), idx = vs.findIndex(function (q) { return q.id === corrida.actual; });
-  if (idx > 0) { corrida.actual = vs[idx - 1].id; pintarPregunta(); }
+  var ps = pantallas(), idx = indicePantalla(ps);
+  if (idx > 0) { corrida.actual = ps[idx - 1][0].id; pintarPregunta(); window.scrollTo(0, 0); }
 });
 $('#btn-cancelar').addEventListener('click', function () {
   if (confirmarSalida()) { corrida = null; ver('lista'); }
@@ -515,15 +702,15 @@ function confirmarSalida() {
   return false;
 }
 
-async function terminar() {
+async function terminar(qFin) {
   var vs = visibles(), resp = {};
-  vs.forEach(function (q) { if (!vacia(corrida.resp[q.id])) resp[q.id] = corrida.resp[q.id]; });
-  var fin = Date.now();
-  var envio = { uuid: corrida.uuid, encuesta_id: corrida.enc.id, encuestador: sesion.codigo, inicio: corrida.inicio, fin: fin, gps: corrida.gps, respuestas: resp };
+  vs.forEach(function (q) { if (q.tipo !== 'fin' && !vacia(corrida.resp[q.id])) resp[q.id] = corrida.resp[q.id]; });
+  var fin = Date.now(), estado = qFin ? (String(qFin.opciones || '').trim() || 'Completa') : 'Completa';
+  var envio = { uuid: corrida.uuid, encuesta_id: corrida.enc.id, encuestador: sesion.codigo, zona: (sesion.ficha && sesion.ficha.zona) || '', estado: estado, inicio: corrida.inicio, fin: fin, gps: corrida.gps, respuestas: resp };
   try { await cola.poner(envio); } catch (e) { aviso('No se pudo guardar en el celular. Revisa el espacio libre.'); return; }
   var primera = vs.find(function (q) { return q.tipo === 'texto' && resp[q.id]; });
   var h = historial();
-  h.unshift({ uuid: envio.uuid, encuesta_id: corrida.enc.id, nombre: corrida.enc.nombre, encuestador: sesion.codigo, fecha: fin, estado: 'pendiente', resumen: primera ? String(resp[primera.id]).slice(0, 60) : '' });
+  h.unshift({ uuid: envio.uuid, encuesta_id: corrida.enc.id, nombre: corrida.enc.nombre, encuestador: sesion.codigo, fecha: fin, estado: 'pendiente', resumen: (estado !== 'Completa' ? estado + ' · ' : '') + (primera ? String(resp[primera.id]).slice(0, 60) : '') });
   guardarHist(h);
   var datos = { enc: corrida.enc, dur: fin - corrida.inicio, gps: !!corrida.gps };
   corrida = null;
@@ -559,6 +746,7 @@ async function sincronizar() {
   if (enviando || !API) return;
   enviando = true;
   try {
+    await enviarFicha();
     var items = [];
     try { items = await cola.todas(); } catch (e) {}
     for (var i = 0; i < items.length; i++) {
@@ -574,7 +762,7 @@ async function sincronizar() {
       try {
         // refresca encuestas y avance sin pedir el PIN otra vez
         var j2 = await (await fetch(API + '?action=login&codigo=' + encodeURIComponent(sesion.codigo) + '&pin=' + encodeURIComponent(almacen.get('k', '')))).json();
-        if (j2.ok) { sesion.encuestas = j2.encuestas; sesion.nombre = j2.nombre; almacen.set('sesion', sesion); }
+        if (j2.ok) { sesion.encuestas = j2.encuestas; if (!sesion.fichaPendiente) { sesion.nombre = j2.nombre; if (j2.ficha) sesion.ficha = j2.ficha; } almacen.set('sesion', sesion); }
       } catch (e) {}
     }
   } finally {
@@ -589,7 +777,7 @@ setInterval(sincronizar, 60000);
 
 /* ---------- arranque ---------- */
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js');
-if (sesion && sesion.activa) { ver('lista'); sincronizar(); }
+if (sesion && sesion.activa) { entrar(); sincronizar(); }
 else { if (sesion) $('#codigo').value = sesion.codigo; ver('ingreso'); }
 })();
 </script>
