@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#00162B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Encuestas">
+<title>Encuestas · Mercadeando</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icono-192.png">
+<link rel="apple-touch-icon" href="icono-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{
+  --azul:#003764; --celeste:#00A0DF; --celeste-texto:#006E9A; --plomo:#D8D8D8;
+  --profundo:#00162B; --oscuro:#051C2C; --gris:#EDECEA; --blanco:#FFFFFF;
+  --cuerpo:#2C3B46; --secundario:#5A6B7A; --divisor:#C9C8C4; --divisor-osc:#1E3A55;
+  --ok:#0B7A4B; --error:#B3261E;
+  --titulos:Lato,"Helvetica Neue",Arial,sans-serif; --texto:Montserrat,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--gris);color:var(--cuerpo);font-family:var(--texto);font-size:16px;-webkit-tap-highlight-color:transparent}
+button,input,textarea{font:inherit}
+.app{max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;background:var(--blanco)}
+.pantalla{display:none;flex:1;flex-direction:column;min-height:100vh;min-height:100dvh}
+.pantalla.activa{display:flex}
+.oscuro{background:var(--profundo);color:var(--blanco)}
+.eyebrow{margin:0;font-family:var(--titulos);font-weight:700;font-size:12px;letter-spacing:.1em;color:var(--celeste-texto);text-transform:uppercase}
+.oscuro .eyebrow{color:var(--celeste)}
+h1{margin:0;font-family:var(--titulos);font-weight:900;line-height:1.2}
+.subrayado{width:48px;height:4px;background:var(--celeste);margin-top:12px}
+.btn{min-height:56px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:4px;font-family:var(--titulos);font-weight:900;font-size:17px;cursor:pointer;text-decoration:none;padding:0 16px}
+.btn-celeste{background:var(--celeste);color:var(--profundo)}
+.btn-azul{background:var(--azul);color:var(--blanco)}
+.btn-borde{background:transparent;border:1px solid var(--azul);color:var(--azul);font-weight:700}
+.btn-texto{background:transparent;color:inherit;font-weight:700;font-size:15px;min-height:48px}
+.btn:disabled{opacity:.45;cursor:default}
+.icono-btn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:transparent;border:0;color:inherit;cursor:pointer;border-radius:4px}
+svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.logo{display:block;height:auto}
+
+/* Ingreso */
+#ingreso{padding:64px 32px 32px;position:relative;overflow:hidden}
+#ingreso .malla{position:absolute;left:0;right:0;bottom:90px;width:100%;height:420px;opacity:.12;pointer-events:none}
+#ingreso > *{position:relative}
+.campo{display:flex;flex-direction:column;gap:8px}
+.campo label{font-size:13px;font-weight:600;color:var(--plomo)}
+.campo input{height:52px;padding:0 16px;border:1px solid var(--divisor-osc);border-radius:4px;background:var(--oscuro);color:var(--blanco);font-size:16px}
+.campo input:focus{outline:2px solid var(--celeste);outline-offset:1px}
+.aviso-error{margin:0;font-size:14px;color:#FFB4AB;min-height:20px}
+
+/* Cabecera azul */
+.cabecera{background:var(--azul);color:var(--blanco);padding:calc(env(safe-area-inset-top) + 20px) 20px 20px;display:flex;flex-direction:column;gap:14px}
+.fila{display:flex;align-items:center;gap:10px}
+.estado{display:flex;align-items:center;gap:10px;background:var(--profundo);padding:12px 14px;border-radius:4px;font-size:13px;color:var(--blanco);border:0;width:100%;text-align:left;cursor:pointer}
+.estado .ic{stroke:var(--celeste)}
+.estado span.crece{flex:1}
+.estado small{color:var(--plomo);font-size:12px}
+.cuerpo-gris{background:var(--gris);flex:1;padding:24px 20px 32px;display:flex;flex-direction:column;gap:12px}
+.tarjeta{background:var(--blanco);padding:20px;display:flex;flex-direction:column;gap:10px;border:0;width:100%;text-align:left;cursor:pointer;color:var(--cuerpo)}
+.tarjeta-titulo{font-family:var(--titulos);font-weight:700;font-size:18px;color:var(--azul)}
+.meta{font-size:13px;color:var(--secundario)}
+.barra{flex:1;height:6px;background:var(--gris)}
+.barra i{display:block;height:6px;background:var(--celeste)}
+.cifra{font-size:12px;font-weight:600;color:var(--azul)}
+.vacio{background:var(--blanco);padding:24px;font-size:14px;line-height:1.6;color:var(--secundario)}
+
+/* Distintivos */
+.distintivo{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap}
+.distintivo svg.ic{width:15px;height:15px;stroke-width:2.2}
+.d-enviada{background:#E3F4EC;color:var(--ok)}
+.d-pendiente{background:#FFF1D6;color:#7A4B00}
+.d-error{background:#FCE4E2;color:var(--error)}
+
+/* Historial */
+.item-hist{background:var(--blanco);padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.item-hist .fila{justify-content:space-between;align-items:flex-start}
+.item-hist b{font-family:var(--titulos);font-size:16px;color:var(--azul)}
+.item-hist .detalle{font-size:12px;color:var(--secundario)}
+.leyenda{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--secundario)}
+
+/* Ficha */
+.form-claro{padding:24px 20px 32px;display:flex;flex-direction:column;gap:18px;background:var(--gris);flex:1}
+.campo-claro{display:flex;flex-direction:column;gap:6px}
+.campo-claro label{font-size:13px;font-weight:600;color:var(--azul)}
+.campo-claro .nota{font-size:12px;color:var(--secundario)}
+.check{display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--cuerpo);cursor:pointer}
+.check input{width:22px;height:22px;flex-shrink:0;margin:0;accent-color:var(--azul)}
+.zona-linea{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--plomo);flex-wrap:wrap}
+.zona-linea button{background:transparent;border:0;color:var(--celeste);font-weight:700;font-size:13px;padding:6px 0;cursor:pointer;text-decoration:underline}
+
+/* Pregunta */
+.barra-sup{padding:calc(env(safe-area-inset-top) + 16px) 20px 0;display:flex;flex-direction:column;gap:14px;background:var(--blanco)}
+.progreso{height:4px;background:var(--gris)}
+.progreso i{display:block;height:4px;background:var(--celeste);transition:width .25s}
+#zona-pregunta{padding:32px 20px 24px;display:flex;flex-direction:column;gap:8px;flex:1}
+#zona-pregunta h1{font-size:24px;color:var(--azul)}
+.ayuda{margin:4px 0 16px;font-size:14px;color:var(--secundario)}
+.opciones{display:flex;flex-direction:column;gap:10px}
+.opcion{min-height:56px;width:100%;padding:12px 16px;display:flex;align-items:center;gap:14px;border:1px solid var(--divisor);border-radius:4px;background:var(--blanco);color:var(--cuerpo);font-size:16px;text-align:left;cursor:pointer}
+.opcion .marca{width:20px;height:20px;flex-shrink:0;border:2px solid var(--secundario);border-radius:50%}
+.opcion.cuadro .marca{border-radius:3px}
+.opcion.sel{background:var(--azul);border-color:var(--azul);color:var(--blanco);font-weight:600}
+.opcion.sel .marca{border:6px solid var(--celeste);background:var(--blanco)}
+.opcion.cuadro.sel .marca{border:2px solid var(--celeste);background:var(--celeste);box-shadow:inset 0 0 0 3px var(--azul)}
+.escala{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.escala .opcion{justify-content:center;padding:0;font-weight:700;font-family:var(--titulos);font-size:18px}
+.escala-pie{display:flex;justify-content:space-between;font-size:12px;color:var(--secundario);margin-top:6px}
+.entrada{width:100%;min-height:56px;padding:14px 16px;border:1px solid var(--divisor);border-radius:4px;font-size:16px;color:var(--cuerpo);background:var(--blanco)}
+textarea.entrada{min-height:140px;resize:vertical}
+.entrada:focus{outline:2px solid var(--celeste);outline-offset:1px;border-color:var(--azul)}
+.items{display:flex;flex-direction:column;gap:14px;margin-top:4px}
+.item{border:1px solid var(--divisor);border-radius:4px;padding:14px;display:flex;flex-direction:column;gap:10px;scroll-margin-top:90px}
+.item-titulo{margin:0;font-size:15px;font-weight:600;line-height:1.4;color:var(--azul)}
+.item .escala .opcion{min-height:48px;font-size:17px}
+.opciones.compactas{gap:8px}
+.opciones.compactas .opcion{min-height:46px;font-size:15px;padding:8px 12px}
+.opcion-extra{margin-top:8px;min-height:46px;font-size:15px}
+select.entrada{appearance:auto;background:var(--blanco)}
+.audio-caja{margin-top:12px;border:1px dashed var(--divisor);border-radius:4px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.audio-caja .meta{font-size:12px}
+.audio-caja audio{width:100%}
+.btn-audio{min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--azul);background:var(--blanco);color:var(--azul);border-radius:4px;font-family:var(--titulos);font-weight:700;font-size:15px;cursor:pointer;padding:0 14px}
+.btn-audio.grabando{background:#B3261E;border-color:#B3261E;color:#fff}
+.fila-btns{display:flex;gap:8px;flex-wrap:wrap}
+.fila-btns .btn-audio{flex:1}
+.punto{width:10px;height:10px;border-radius:50%;background:#fff;animation:lat 1s infinite}
+@keyframes lat{50%{opacity:.25}}
+.rec-total{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#B3261E}
+.rec-total .punto{background:#B3261E}
+.rec-total[hidden]{display:none}
+.consent{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.foto-prev{width:100%;max-height:300px;object-fit:cover;border-radius:8px;margin-top:12px}
+.error-preg{color:var(--error);font-size:14px;font-weight:600;min-height:20px;margin:8px 0 0}
+.pie{padding:14px 20px calc(env(safe-area-inset-bottom) + 20px);display:flex;gap:12px;border-top:1px solid var(--divisor);background:var(--blanco)}
+
+/* Fin */
+#fin{padding:calc(env(safe-area-inset-top) + 96px) 32px calc(env(safe-area-inset-bottom) + 32px)}
+.circulo{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.circulo svg.ic{width:36px;height:36px;stroke-width:2.2;stroke:var(--profundo)}
+.resumen{margin-top:32px;background:var(--oscuro);border:1px solid var(--divisor-osc);padding:4px 16px}
+.resumen .fila{justify-content:space-between;padding:12px 0;font-size:14px;border-bottom:1px solid var(--divisor-osc)}
+.resumen .fila:last-child{border-bottom:0}
+.resumen .fila > span:first-child{color:var(--plomo)}
+.crece{flex:1}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--profundo);color:var(--blanco);padding:12px 18px;border-radius:4px;font-size:14px;max-width:90%;z-index:9;display:none}
+.toast.ver{display:block}
+
+/* ---------- Tablet, laptop y computadora ---------- */
+.version{margin:8px 0 0;text-align:center;font-size:11px;color:var(--secundario)}
+@media (min-width: 768px) {
+  :root{--lado:max(32px, calc(50% - 380px))}
+  .app{max-width:none}
+  #ingreso{padding-left:max(48px, calc(50% - 240px));padding-right:max(48px, calc(50% - 240px));padding-top:12vh}
+  #ingreso h1{font-size:38px!important}
+  .cabecera{padding-left:var(--lado);padding-right:var(--lado)}
+  .cuerpo-gris{padding-left:var(--lado);padding-right:var(--lado)}
+  #tarjetas,#sin-terminar{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #sin-terminar > .eyebrow,#tarjetas > .vacio{grid-column:1 / -1}
+  #lista-historial{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #btn-enviar-ahora,#btn-historial{max-width:420px;align-self:center}
+  .barra-sup,#zona-pregunta,.pie{padding-left:var(--lado);padding-right:var(--lado)}
+  #zona-pregunta{padding-top:48px}
+  #zona-pregunta h1{font-size:30px}
+  .opciones:not(.compactas){display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .escala{grid-template-columns:repeat(auto-fit,minmax(52px,1fr))}
+  .pie{justify-content:flex-end}
+  .pie .btn{max-width:280px}
+  #fin{padding-left:max(48px, calc(50% - 300px));padding-right:max(48px, calc(50% - 300px))}
+  #fin .btn{max-width:420px}
+  .form-claro{padding-left:var(--lado);padding-right:var(--lado);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;align-content:start}
+  .form-claro .check,.form-claro .error-preg,.form-claro .btn{grid-column:1 / -1}
+  .form-claro .btn{max-width:420px}
+}
+@media (min-width: 1100px) {
+  :root{--lado:max(48px, calc(50% - 480px))}
+  #tarjetas,#sin-terminar{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .item:has(.escala){display:grid;grid-template-columns:minmax(0,1fr) 420px;align-items:center;column-gap:24px}
+  .item:has(.escala) .opcion-extra{grid-column:2}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- 1. Ingreso -->
+<section id="ingreso" class="pantalla oscuro" aria-label="Ingreso">
+  <svg class="malla" aria-hidden="true" viewBox="0 0 390 420" preserveAspectRatio="none"><g fill="none" stroke="#04FBF9" stroke-width="1">
+    <path d="M-20 300 C 80 120, 220 380, 410 160"/><path d="M-20 320 C 90 150, 230 360, 410 190"/><path d="M-20 340 C 100 180, 240 340, 410 220"/><path d="M-20 360 C 110 210, 250 320, 410 250"/>
+    <path d="M-20 200 C 120 380, 260 120, 410 300"/><path d="M-20 225 C 130 360, 270 140, 410 320"/><path d="M-20 250 C 140 340, 280 160, 410 340"/><path d="M-20 275 C 150 320, 290 180, 410 360"/></g></svg>
+  <img class="logo" src="logo-negativo.png" alt="Mercadeando" width="200">
+  <div style="margin-top:56px">
+    <p class="eyebrow">Encuestas en campo</p>
+    <h1 style="font-size:32px;margin-top:8px">Ingresa con tu código de encuestador</h1>
+    <div class="subrayado"></div>
+  </div>
+  <form id="form-ingreso" style="margin-top:36px;display:flex;flex-direction:column;gap:18px" novalidate>
+    <div class="campo"><label for="codigo">Código de encuestador</label>
+      <input id="codigo" autocomplete="username" autocapitalize="characters" spellcheck="false" required></div>
+    <div class="campo"><label for="pin">PIN</label>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required></div>
+    <p class="aviso-error" id="error-ingreso" role="alert"></p>
+    <button class="btn btn-celeste" id="btn-ingresar" type="submit">Ingresar</button>
+  </form>
+  <div class="crece"></div>
+  <p style="margin:24px 0 0;font-size:12px;line-height:1.5;color:var(--plomo)">Versión 8. Funciona sin internet. Tus encuestas se guardan en el celular y se envían solas cuando vuelve la señal.</p>
+</section>
+
+<!-- 2. Mis encuestas -->
+<section id="lista" class="pantalla" aria-label="Mis encuestas">
+  <div class="cabecera">
+    <div class="fila">
+      <img class="logo" src="logo-negativo.png" alt="Mercadeando" width="140">
+      <span class="crece"></span>
+      <button class="icono-btn" id="btn-actualizar" aria-label="Actualizar encuestas"><svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+      <button class="icono-btn" id="btn-salir" aria-label="Cerrar sesión"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
+    </div>
+    <div>
+      <p style="margin:0;font-size:13px;color:var(--plomo)" id="saludo"></p>
+      <p class="zona-linea" style="margin:2px 0 0"><span id="zona-actual"></span><button type="button" id="btn-zona">Cambiar zona</button></p>
+      <h1 style="font-size:28px;margin-top:4px">Mis encuestas</h1>
+    </div>
+    <button class="estado" id="estado-envio" type="button">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+      <span class="crece" id="estado-texto"></span><small id="estado-red"></small>
+    </button>
+  </div>
+  <div class="cuerpo-gris">
+    <div id="sin-terminar" style="display:flex;flex-direction:column;gap:12px"></div>
+    <p class="eyebrow">Asignadas a ti</p>
+    <div id="tarjetas" style="display:flex;flex-direction:column;gap:12px"></div>
+    <button class="btn btn-texto" id="btn-historial" style="color:var(--celeste-texto)">Ver encuestas hechas en este equipo</button>
+    <p class="version">App versión 8 · 2 nov 2026</p>
+  </div>
+</section>
+
+<!-- 2b. Ficha del encuestador -->
+<section id="ficha" class="pantalla" aria-label="Ficha del encuestador">
+  <div class="cabecera">
+    <div class="fila">
+      <img class="logo" src="logo-negativo.png" alt="Mercadeando" width="140">
+      <span class="crece"></span>
+      <button class="icono-btn" id="btn-ficha-volver" aria-label="Volver" style="display:none"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>
+    </div>
+    <div>
+      <p class="eyebrow" style="color:var(--celeste)" id="ficha-eyebrow">Primer ingreso</p>
+      <h1 style="font-size:26px;margin-top:6px" id="ficha-titulo">Completa tu ficha de encuestador</h1>
+      <p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--plomo)" id="ficha-texto">Solo se pide una vez. Tus datos quedan registrados en Mercadeando.</p>
+    </div>
+  </div>
+  <form id="form-ficha" class="form-claro" novalidate>
+    <div class="campo-claro"><label for="f-nombre">Nombres</label><input class="entrada" id="f-nombre" autocomplete="given-name" required></div>
+    <div class="campo-claro"><label for="f-apellido">Apellidos</label><input class="entrada" id="f-apellido" autocomplete="family-name" required></div>
+    <div class="campo-claro"><label for="f-dni">DNI</label><input class="entrada" id="f-dni" inputmode="numeric" maxlength="8" required><span class="nota">8 dígitos</span></div>
+    <div class="campo-claro"><label for="f-celular">Celular</label><input class="entrada" id="f-celular" type="tel" inputmode="numeric" maxlength="9" autocomplete="tel-national" required><span class="nota">9 dígitos, sin +51</span></div>
+    <div class="campo-claro"><label for="f-zona">Zona donde harás las encuestas</label><input class="entrada" id="f-zona" required><span class="nota">Distrito o zona, por ejemplo: San Juan de Lurigancho</span></div>
+    <label class="check" id="f-check"><input type="checkbox" id="f-acepta"><span>Autorizo a Mercadeando a usar estos datos solo para gestionar mi trabajo como encuestador, según la Ley 29733 de Protección de Datos Personales.</span></label>
+    <p class="error-preg" id="error-ficha" role="alert"></p>
+    <button class="btn btn-azul" id="btn-ficha" type="submit">Guardar y continuar</button>
+  </form>
+</section>
+
+<!-- 3. Pregunta -->
+<section id="encuesta" class="pantalla" aria-label="Encuesta">
+  <div class="barra-sup">
+    <div class="fila">
+      <button class="icono-btn" id="btn-cancelar" aria-label="Salir de la encuesta" style="margin-left:-12px;color:var(--azul)"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>
+      <span class="crece meta" id="enc-nombre"></span>
+      <span class="rec-total" id="rec-total" hidden><span class="punto"></span>REC</span>
+      <span class="cifra" style="font-size:13px" id="enc-paso"></span>
+    </div>
+    <div class="progreso"><i id="enc-barra" style="width:0"></i></div>
+  </div>
+  <div id="zona-pregunta"></div>
+  <div class="pie">
+    <button class="btn btn-borde" id="btn-anterior" style="flex:1">Anterior</button>
+    <button class="btn btn-azul" id="btn-siguiente" style="flex:2">Siguiente</button>
+  </div>
+</section>
+
+<!-- 4. Fin -->
+<section id="fin" class="pantalla oscuro" aria-label="Encuesta terminada">
+  <div class="circulo" id="fin-circulo"></div>
+  <p class="eyebrow" style="margin-top:36px" id="fin-eyebrow"></p>
+  <h1 style="font-size:30px;margin-top:8px" id="fin-titulo"></h1>
+  <div class="subrayado"></div>
+  <p style="margin:20px 0 0;font-size:15px;line-height:1.6;color:var(--plomo)" id="fin-texto"></p>
+  <div class="resumen" id="fin-resumen"></div>
+  <div class="crece" style="min-height:32px"></div>
+  <button class="btn btn-celeste" id="btn-otra">Nueva encuesta</button>
+  <button class="btn btn-texto" id="btn-volver" style="margin-top:8px">Volver a mis encuestas</button>
+</section>
+
+<!-- 5. Historial -->
+<section id="historial" class="pantalla" aria-label="Encuestas hechas">
+  <div class="cabecera">
+    <div class="fila">
+      <button class="icono-btn" id="btn-hist-volver" aria-label="Volver" style="margin-left:-12px"><svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h1 style="font-size:24px" class="crece">Encuestas hechas</h1>
+    </div>
+    <div class="leyenda" style="color:var(--plomo)">
+      <span class="distintivo d-enviada" id="cuenta-enviadas"></span>
+      <span class="distintivo d-pendiente" id="cuenta-pendientes"></span>
+    </div>
+  </div>
+  <div class="cuerpo-gris">
+    <button class="btn btn-azul" id="btn-enviar-ahora">Enviar pendientes ahora</button>
+    <div id="lista-historial" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+</section>
+
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+'use strict';
+var API = (window.CONFIG && window.CONFIG.API_URL) || '';
+
+/* ---------- utilidades ---------- */
+function $(s) { return document.querySelector(s); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+var almacen = {
+  get: function (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+function uuid() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+}
+async function huella(t) {
+  try {
+    var b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
+    return Array.from(new Uint8Array(b)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+  } catch (e) { return btoa(unescape(encodeURIComponent(t))); }
+}
+function hora(ts) { var d = new Date(ts); return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }) + ' · ' + d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }); }
+var tToast;
+function aviso(m) { var t = $('#toast'); t.textContent = m; t.classList.add('ver'); clearTimeout(tToast); tToast = setTimeout(function () { t.classList.remove('ver'); }, 3200); }
+var IC = {
+  check: '<svg class="ic" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>',
+  reloj: '<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  alerta: '<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16.5v.01"/></svg>',
+  nube: '<svg class="ic" viewBox="0 0 24 24"><path d="M7 18a5 5 0 1 1 .9-9.9A6 6 0 0 1 19 10a4 4 0 0 1 0 8z"/><path d="M12 12v6"/><path d="M9.5 14.5L12 12l2.5 2.5"/></svg>'
+};
+function distintivo(estado) {
+  if (estado === 'enviada') return '<span class="distintivo d-enviada">' + IC.check + 'Enviada</span>';
+  if (estado === 'error') return '<span class="distintivo d-error">' + IC.alerta + 'No se pudo enviar</span>';
+  return '<span class="distintivo d-pendiente">' + IC.reloj + 'Pendiente de envío</span>';
+}
+
+// fetch con tiempo límite: si la red se cuelga, no deja la app esperando
+function pedir(url, opciones, ms) {
+  var ctrl = window.AbortController ? new AbortController() : null;
+  var t = ctrl ? setTimeout(function () { ctrl.abort(); }, ms || 30000) : null;
+  var o = Object.assign({}, opciones || {}, ctrl ? { signal: ctrl.signal } : {});
+  return fetch(url, o).finally(function () { if (t) clearTimeout(t); });
+}
+
+/* ---------- cola en el celular (IndexedDB) ---------- */
+function abrirDB() {
+  return new Promise(function (ok, mal) {
+    var r = indexedDB.open('mercadeando-encuestas', 2);
+    r.onupgradeneeded = function () {
+      var db = r.result;
+      if (!db.objectStoreNames.contains('cola')) db.createObjectStore('cola', { keyPath: 'uuid' });
+      if (!db.objectStoreNames.contains('borradores')) db.createObjectStore('borradores', { keyPath: 'uuid' });
+    };
+    r.onsuccess = function () { ok(r.result); };
+    r.onerror = function () { mal(r.error); };
+  });
+}
+function tx(modo, fn, almacenNombre) {
+  var n = almacenNombre || 'cola';
+  return abrirDB().then(function (db) {
+    return new Promise(function (ok, mal) {
+      var t = db.transaction(n, modo), req = fn(t.objectStore(n));
+      t.oncomplete = function () { ok(req && req.result); };
+      t.onerror = function () { mal(t.error); };
+    });
+  });
+}
+var cola = {
+  poner: function (x) { return tx('readwrite', function (s) { return s.put(x); }); },
+  quitar: function (id) { return tx('readwrite', function (s) { return s.delete(id); }); },
+  todas: function () { return tx('readonly', function (s) { return s.getAll(); }); }
+};
+// Encuestas a medio hacer: se guardan solas tras cada respuesta
+var borradores = {
+  poner: function (x) { return tx('readwrite', function (s) { return s.put(x); }, 'borradores'); },
+  quitar: function (id) { return tx('readwrite', function (s) { return s.delete(id); }, 'borradores'); },
+  todos: function () { return tx('readonly', function (s) { return s.getAll(); }, 'borradores'); }
+};
+
+/* ---------- historial (distintivo enviada / pendiente) ---------- */
+function historial() { return almacen.get('historial', []); }
+function guardarHist(h) { almacen.set('historial', h.slice(0, 300)); }
+function marcar(id, estado, detalle) {
+  var h = historial();
+  h.forEach(function (x) { if (x.uuid === id) { x.estado = estado; x.detalle = detalle || ''; if (estado === 'enviada') x.enviadaEn = Date.now(); } });
+  guardarHist(h);
+}
+
+/* ---------- navegación ---------- */
+var sesion = almacen.get('sesion', null);
+function ver(id) {
+  document.querySelectorAll('.pantalla').forEach(function (p) { p.classList.toggle('activa', p.id === id); });
+  window.scrollTo(0, 0);
+  if (id === 'lista') pintarLista();
+  if (id === 'historial') pintarHistorial();
+}
+
+/* ---------- ingreso ---------- */
+$('#form-ingreso').addEventListener('submit', async function (ev) {
+  ev.preventDefault();
+  var codigo = $('#codigo').value.trim().toUpperCase(), pin = $('#pin').value.trim();
+  var err = $('#error-ingreso'); err.textContent = '';
+  if (!codigo || !pin) { err.textContent = 'Escribe tu código y tu PIN.'; return; }
+  var btn = $('#btn-ingresar'); btn.disabled = true; btn.textContent = 'Ingresando…';
+  var h = await huella(codigo + '|' + pin);
+  try {
+    if (!API) throw { msg: 'Falta configurar la dirección del servidor (config.js).' };
+    var j = await (await pedir(API + '?action=login&codigo=' + encodeURIComponent(codigo) + '&pin=' + encodeURIComponent(pin))).json();
+    if (!j.ok) throw { msg: j.error || 'No se pudo ingresar.' };
+    var previaF = almacen.get('sesion', null);
+    var fichaLocal = previaF && previaF.codigo === j.codigo && previaF.fichaPendiente ? previaF.ficha : null;
+    sesion = { codigo: j.codigo, nombre: j.nombre, encuestas: j.encuestas, ficha: fichaLocal || j.ficha || {}, fichaPendiente: !!fichaLocal, huella: h, actualizado: Date.now(), activa: true };
+    almacen.set('sesion', sesion); almacen.set('k', pin);
+    $('#pin').value = '';
+    entrar(); sincronizar();
+  } catch (e) {
+    var previa = almacen.get('sesion', null);
+    if (!e.msg && previa && previa.codigo === codigo && previa.huella === h) {
+      sesion = previa; sesion.activa = true; almacen.set('sesion', sesion); almacen.set('k', pin);
+      $('#pin').value = ''; entrar(); aviso('Sin conexión: usando las encuestas guardadas.');
+    } else {
+      err.textContent = e.msg || 'Sin conexión. La primera vez necesitas internet para ingresar.';
+    }
+  } finally { btn.disabled = false; btn.textContent = 'Ingresar'; }
+});
+
+$('#btn-salir').addEventListener('click', function () {
+  if (sesion) { sesion.activa = false; almacen.set('sesion', sesion); }
+  almacen.set('k', '');
+  $('#codigo').value = sesion ? sesion.codigo : '';
+  ver('ingreso');
+});
+
+$('#btn-actualizar').addEventListener('click', async function () {
+  if (!navigator.onLine) { aviso('Sin conexión. Inténtalo cuando tengas señal.'); return; }
+  aviso('Actualizando…');
+  await sincronizar();
+  aviso('Encuestas actualizadas.');
+});
+
+/* ---------- ficha del encuestador ---------- */
+function fichaCompleta() { var f = sesion && sesion.ficha; return !!(f && f.nombre && f.apellido && f.dni && f.celular && f.zona); }
+function entrar() { if (fichaCompleta()) ver('lista'); else abrirFicha(false); }
+function abrirFicha(edicion) {
+  var f = (sesion && sesion.ficha) || {};
+  $('#f-nombre').value = f.nombre || '';
+  $('#f-apellido').value = f.apellido || '';
+  $('#f-dni').value = f.dni || '';
+  $('#f-celular').value = f.celular || '';
+  $('#f-zona').value = f.zona || '';
+  $('#f-acepta').checked = !!edicion;
+  $('#error-ficha').textContent = '';
+  $('#ficha-eyebrow').textContent = edicion ? 'Mis datos' : 'Primer ingreso';
+  $('#ficha-titulo').textContent = edicion ? 'Actualiza tu zona o tus datos' : 'Completa tu ficha de encuestador';
+  $('#ficha-texto').textContent = edicion ? 'La zona que indiques se guarda en cada encuesta que hagas desde ahora.' : 'Solo se pide una vez. Tus datos quedan registrados en Mercadeando.';
+  $('#btn-ficha-volver').style.display = edicion ? 'flex' : 'none';
+  ver('ficha');
+  if (edicion) setTimeout(function () { $('#f-zona').focus(); $('#f-zona').select(); }, 50);
+}
+$('#btn-zona').addEventListener('click', function () { abrirFicha(true); });
+$('#btn-ficha-volver').addEventListener('click', function () { ver('lista'); });
+$('#form-ficha').addEventListener('submit', async function (ev) {
+  ev.preventDefault();
+  var f = {
+    nombre: $('#f-nombre').value.trim(), apellido: $('#f-apellido').value.trim(),
+    dni: $('#f-dni').value.replace(/\D/g, ''), celular: $('#f-celular').value.replace(/\D/g, ''),
+    zona: $('#f-zona').value.trim(), acepta_datos: $('#f-acepta').checked
+  };
+  var err = $('#error-ficha');
+  if (!f.nombre || !f.apellido || !f.zona) { err.textContent = 'Completa todos los campos.'; return; }
+  if (f.dni.length !== 8) { err.textContent = 'El DNI debe tener 8 dígitos.'; return; }
+  if (f.celular.length !== 9) { err.textContent = 'El celular debe tener 9 dígitos.'; return; }
+  if (!f.acepta_datos) { err.textContent = 'Debes marcar la autorización de datos personales.'; return; }
+  err.textContent = '';
+  sesion.ficha = f; sesion.nombre = f.nombre; sesion.fichaPendiente = true; almacen.set('sesion', sesion);
+  var btn = $('#btn-ficha'); btn.disabled = true; btn.textContent = 'Guardando…';
+  var r = await enviarFicha();
+  btn.disabled = false; btn.textContent = 'Guardar y continuar';
+  if (r && r.error) { err.textContent = r.error; return; }
+  aviso(r && r.ok ? 'Datos guardados.' : 'Datos guardados en el celular. Se enviarán cuando haya señal.');
+  ver('lista');
+});
+async function enviarFicha() {
+  if (!sesion || !sesion.fichaPendiente || !API || !navigator.onLine) return null;
+  try {
+    var r = await pedir(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ tipo: 'ficha', codigo: sesion.codigo, pin: almacen.get('k', ''), ficha: sesion.ficha }) }, 30000);
+    var j = await r.json();
+    if (j.ok) { sesion.fichaPendiente = false; almacen.set('sesion', sesion); return { ok: true }; }
+    return { error: j.error || 'No se pudo guardar la ficha.' };
+  } catch (e) { return null; }
+}
+
+/* ---------- lista ---------- */
+async function pintarSinTerminar() {
+  var cont = $('#sin-terminar'), bs = [];
+  try { bs = (await borradores.todos()).filter(function (b) { return sesion && b.encuestador === sesion.codigo; }); } catch (e) {}
+  bs.sort(function (a, b) { return b.guardado - a.guardado; });
+  if (!bs.length) { cont.innerHTML = ''; return; }
+  cont.innerHTML = '<p class="eyebrow">Sin terminar · se guardaron solas</p>' + bs.map(function (b, i) {
+    var n = Object.keys(b.resp || {}).filter(function (k) { return k.indexOf('__audio') < 0; }).length;
+    return '<div class="tarjeta" style="cursor:default;border-left:0"><span class="tarjeta-titulo">' + esc(b.enc.nombre) + '</span>' +
+      '<span class="meta">' + n + (n === 1 ? ' respuesta' : ' respuestas') + ' · guardada el ' + hora(b.guardado) + (b.consentimiento === 'Sí' ? ' · con audio' : '') + '</span>' +
+      '<span class="fila"><button type="button" class="btn btn-azul" style="min-height:48px;flex:2" data-seguir="' + i + '">Continuar</button>' +
+      '<button type="button" class="btn btn-borde" style="min-height:48px;flex:1" data-borrar="' + i + '">Descartar</button></span></div>';
+  }).join('');
+  cont.querySelectorAll('[data-seguir]').forEach(function (b) { b.addEventListener('click', function () { continuarBorrador(bs[+b.dataset.seguir]); }); });
+  cont.querySelectorAll('[data-borrar]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      if (!b.dataset.armado) { b.dataset.armado = '1'; b.textContent = '¿Seguro?'; setTimeout(function () { delete b.dataset.armado; b.textContent = 'Descartar'; }, 3500); return; }
+      await borradores.quitar(bs[+b.dataset.borrar].uuid); pintarSinTerminar();
+    });
+  });
+}
+
+async function pintarLista() {
+  pintarSinTerminar();
+  if (!sesion) return;
+  $('#saludo').textContent = 'Hola, ' + sesion.nombre;
+  $('#zona-actual').textContent = 'Zona: ' + ((sesion.ficha && sesion.ficha.zona) || 'sin indicar');
+  var h = historial().filter(function (x) { return x.encuestador === sesion.codigo; });
+  var cont = $('#tarjetas');
+  if (!sesion.encuestas || !sesion.encuestas.length) {
+    cont.innerHTML = '<div class="vacio">No tienes encuestas activas. Pide a tu supervisor que active una en la hoja y pulsa el botón de actualizar.</div>';
+  } else {
+    cont.innerHTML = sesion.encuestas.map(function (e, i) {
+      var mias = h.filter(function (x) { return x.encuesta_id === e.id; });
+      var pend = mias.filter(function (x) { return x.estado !== 'enviada'; }).length;
+      var total = (e.hechas || 0) + pend;
+      var pct = e.meta ? Math.min(100, Math.round(total * 100 / e.meta)) : 0;
+      return '<button class="tarjeta" data-i="' + i + '">' +
+        '<span class="tarjeta-titulo">' + esc(e.nombre) + '</span>' +
+        (e.descripcion ? '<span class="meta">' + esc(e.descripcion) + '</span>' : '') +
+        '<span class="meta">' + e.preguntas.length + ' preguntas</span>' +
+        '<span class="fila"><span class="barra"><i style="width:' + pct + '%"></i></span>' +
+        '<span class="cifra">' + total + (e.meta ? ' / ' + e.meta : '') + '</span></span>' +
+        (pend ? '<span>' + distintivo('pendiente') + ' <span class="meta">' + pend + ' en este celular</span></span>' : '') +
+        '</button>';
+    }).join('');
+    cont.querySelectorAll('.tarjeta').forEach(function (b) { b.addEventListener('click', function () { empezar(sesion.encuestas[+b.dataset.i]); }); });
+  }
+  pintarEstado();
+}
+
+async function pintarEstado() {
+  var n = 0; try { n = (await cola.todas()).length; } catch (e) {}
+  $('#estado-texto').textContent = n ? (n === 1 ? '1 encuesta pendiente de envío' : n + ' encuestas pendientes de envío') : 'Todo enviado';
+  $('#estado-red').textContent = navigator.onLine ? 'Con señal' : 'Sin señal';
+}
+$('#estado-envio').addEventListener('click', function () { ver('historial'); });
+$('#btn-historial').addEventListener('click', function () { ver('historial'); });
+
+/* ---------- historial ---------- */
+function pintarHistorial() {
+  var h = historial().filter(function (x) { return !sesion || x.encuestador === sesion.codigo; });
+  var env = h.filter(function (x) { return x.estado === 'enviada'; }).length;
+  $('#cuenta-enviadas').innerHTML = IC.check + env + (env === 1 ? ' enviada' : ' enviadas');
+  $('#cuenta-pendientes').innerHTML = IC.reloj + (h.length - env) + (h.length - env === 1 ? ' pendiente' : ' pendientes');
+  $('#btn-enviar-ahora').style.display = h.length - env ? 'flex' : 'none';
+  $('#lista-historial').innerHTML = h.length ? h.map(function (x) {
+    return '<div class="item-hist"><div class="fila"><b>' + esc(x.nombre) + '</b>' + distintivo(x.estado) + '</div>' +
+      '<span class="detalle">Hecha el ' + hora(x.fecha) + (x.estado === 'enviada' && x.enviadaEn ? ' · enviada el ' + hora(x.enviadaEn) : '') + '</span>' +
+      (x.resumen ? '<span class="detalle">' + esc(x.resumen) + '</span>' : '') +
+      (x.estado === 'error' && x.detalle ? '<span class="detalle" style="color:var(--error)">' + esc(x.detalle) + '</span>' : '') +
+      '</div>';
+  }).join('') : '<div class="vacio">Aún no has hecho encuestas en este celular.</div>';
+}
+$('#btn-hist-volver').addEventListener('click', function () { ver('lista'); });
+$('#btn-enviar-ahora').addEventListener('click', async function () {
+  if (!navigator.onLine) { aviso('Sin conexión. Se enviarán solas cuando vuelva la señal.'); return; }
+  aviso('Enviando…'); await sincronizar(); pintarHistorial();
+});
+
+/* ---------- grabación de audio ---------- */
+var grab = { stream: null, total: null, chunksTotal: [], inicio: 0, clip: null, reloj: null };
+var IC_MIC = '<svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>';
+function tipoAudio() {
+  var c = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm', 'audio/ogg;codecs=opus'];
+  if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+  for (var i = 0; i < c.length; i++) if (MediaRecorder.isTypeSupported(c[i])) return c[i];
+  return '';
+}
+function puedeGrabar() { return !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia); }
+async function abrirMicro() {
+  if (grab.stream && grab.stream.active) return grab.stream;
+  grab.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+  return grab.stream;
+}
+function nuevoGrabador(stream, chunks) {
+  var t = tipoAudio(), op = { audioBitsPerSecond: 24000 };
+  if (t) op.mimeType = t;
+  var r = new MediaRecorder(stream, op);
+  r.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+  return r;
+}
+function detenerGrabador(rec, chunks) {
+  return new Promise(function (ok) {
+    var armar = function () { ok(chunks.length ? new Blob(chunks, { type: (rec && rec.mimeType) || chunks[0].type || 'audio/webm' }) : null); };
+    if (!rec || rec.state === 'inactive') return armar();
+    rec.onstop = armar;
+    try { rec.stop(); } catch (e) { armar(); }
+  });
+}
+function aDataURL(blob) { return new Promise(function (ok) { var fr = new FileReader(); fr.onload = function () { ok(fr.result); }; fr.onerror = function () { ok(null); }; fr.readAsDataURL(blob); }); }
+function cerrarMicro() { if (grab.stream) { grab.stream.getTracks().forEach(function (t) { t.stop(); }); grab.stream = null; } }
+function mmss(seg) { seg = Math.max(0, Math.round(seg)); return String(Math.floor(seg / 60)).padStart(2, '0') + ':' + String(seg % 60).padStart(2, '0'); }
+async function iniciarTotal() {
+  var st = await abrirMicro();
+  grab.chunksTotal = []; grab.total = nuevoGrabador(st, grab.chunksTotal);
+  grab.total.addEventListener('dataavailable', function () { guardarBorrador(); });
+  grab.total.start(1000); grab.inicio = Date.now();
+  $('#rec-total').hidden = false;
+}
+async function terminarTotal() {
+  $('#rec-total').hidden = true;
+  if (!grab.total) return null;
+  var b = await detenerGrabador(grab.total, grab.chunksTotal); grab.total = null;
+  return b;
+}
+async function iniciarClip(id) {
+  var st = await abrirMicro();
+  var chunks = [], rec = nuevoGrabador(st, chunks);
+  grab.clip = { id: id, rec: rec, chunks: chunks, t0: Date.now() };
+  rec.start(1000);
+  clearInterval(grab.reloj);
+  grab.reloj = setInterval(function () { var el = document.getElementById('reloj-' + id); if (el && grab.clip) el.textContent = mmss((Date.now() - grab.clip.t0) / 1000); }, 500);
+}
+async function detenerClip() {
+  if (!grab.clip) return;
+  var c = grab.clip; grab.clip = null; clearInterval(grab.reloj);
+  var b = await detenerGrabador(c.rec, c.chunks);
+  if (b && corrida) corrida.resp[c.id + '__audio'] = await aDataURL(b);
+  if (!grab.total) cerrarMicro();
+}
+async function descartarGrabaciones() {
+  clearInterval(grab.reloj);
+  if (grab.clip) { try { grab.clip.rec.stop(); } catch (e) {} grab.clip = null; }
+  if (grab.total) { try { grab.total.stop(); } catch (e) {} grab.total = null; }
+  $('#rec-total').hidden = true; cerrarMicro();
+}
+function marcar_(id) {
+  if (!grab.total || !corrida) return;
+  var m = corrida.marcas, ult = m[m.length - 1];
+  if (!ult || ult.id !== id) m.push({ id: id, t: tiempoAudio() });
+}
+function tiempoAudio() { return ((corrida && corrida.offset) || 0) + (grab.total ? (Date.now() - grab.inicio) / 1000 : 0); }
+// Detiene la grabación completa y guarda lo grabado como una parte (al salir de la encuesta)
+async function pausarTotal() {
+  if (!grab.total || !corrida) return;
+  var off = tiempoAudio(), b = await terminarTotal();
+  corrida.offset = off;
+  if (b) (corrida.segmentos = corrida.segmentos || []).push(b);
+}
+
+/* ---------- guardado automático del avance ---------- */
+var tBorrador = null;
+function guardarBorrador(inmediato) {
+  clearTimeout(tBorrador);
+  var hacer = function () {
+    if (!corrida || !sesion) return;
+    borradores.poner({
+      uuid: corrida.uuid, encuesta_id: corrida.enc.id, enc: corrida.enc, encuestador: sesion.codigo,
+      resp: corrida.resp, actual: corrida.actual, inicio: corrida.inicio, gps: corrida.gps,
+      consentimiento: corrida.consentimiento, marcas: corrida.marcas, segmentos: corrida.segmentos || [],
+      offset: tiempoAudio(), trozos: grab.total ? grab.chunksTotal.slice() : [], guardado: Date.now()
+    }).catch(function () {});
+  };
+  if (inmediato) hacer(); else tBorrador = setTimeout(hacer, 600);
+}
+async function continuarBorrador(b) {
+  var enc = (sesion.encuestas || []).find(function (e) { return e.id === b.encuesta_id; }) || b.enc;
+  corrida = { enc: enc, resp: b.resp || {}, actual: b.actual, inicio: b.inicio, gps: b.gps, uuid: b.uuid,
+    consentimiento: b.consentimiento, marcas: b.marcas || [], segmentos: (b.segmentos || []).slice(), offset: b.offset || 0 };
+  if (b.trozos && b.trozos.length) corrida.segmentos.push(new Blob(b.trozos, { type: b.trozos[0].type || 'audio/webm' }));
+  $('#enc-nombre').textContent = enc.nombre;
+  ver('encuesta');
+  if (corrida.consentimiento === 'Sí') {
+    try { await iniciarTotal(); } catch (e) { aviso('No se pudo reanudar la grabación; la encuesta sigue sin audio.'); }
+  }
+  pintarPregunta(); guardarBorrador(true);
+}
+
+/* ---------- encuesta ---------- */
+var corrida = null;
+// Condiciones: "p2=Sí", "p2!=No", "p27>=9", "B3=1. Farmacia|2. Café" (cualquiera), varias unidas con " Y "
+function cumpleUna(c, resp) {
+  var m = String(c).match(/^\s*([^=!<>]+?)\s*(>=|<=|!=|=|>|<)\s*(.*?)\s*$/);
+  if (!m) return true;
+  var v = resp[m[1].trim()], op = m[2], vals = m[3].split('|').map(function (x) { return x.trim(); });
+  if (op === '>=' || op === '<=' || op === '>' || op === '<') {
+    if (v == null || v === '' || isNaN(Number(v))) return false;
+    var a = Number(v), b = Number(vals[0]);
+    return op === '>=' ? a >= b : op === '<=' ? a <= b : op === '>' ? a > b : a < b;
+  }
+  var arr = Array.isArray(v) ? v.map(String) : (v == null || v === '' ? [] : [String(v)]);
+  var hay = vals.some(function (x) { return arr.indexOf(x) >= 0; });
+  return op === '=' ? hay : !hay;
+}
+function cumple(cond, resp) {
+  if (!cond) return true;
+  return String(cond).split(/\s+Y\s+|\s*&&\s*/).every(function (c) { return cumpleUna(c, resp); });
+}
+// Preguntas visibles en orden; las respuestas de preguntas ocultas no cuentan. Se corta en la primera pantalla de fin.
+function visibles() {
+  var vis = [], ef = {};
+  for (var i = 0; i < corrida.enc.preguntas.length; i++) {
+    var q = corrida.enc.preguntas[i];
+    if (!cumple(q.mostrar_si, ef)) continue;
+    vis.push(q);
+    if (q.tipo === 'fin') break;
+    if (corrida.resp[q.id] !== undefined) ef[q.id] = corrida.resp[q.id];
+  }
+  return vis;
+}
+// Preguntas seguidas con el mismo "bloque" van en una sola pantalla
+function pantallas() {
+  var out = [];
+  visibles().forEach(function (q) {
+    var ult = out[out.length - 1];
+    if (q.bloque && q.tipo !== 'fin' && ult && ult[0].bloque === q.bloque && ult[0].tipo !== 'fin') ult.push(q);
+    else out.push([q]);
+  });
+  return out;
+}
+function opciones(q) { return String(q.opciones || '').split('|').map(function (s) { return s.trim(); }).filter(Boolean); }
+function sinCodigo(t) { return String(t).replace(/^\s*[\w]{1,3}[.)]\s+/, ''); }
+function insertar(t) {
+  return String(t || '').replace(/\{([^}]+)\}/g, function (m, id) {
+    var v = corrida.resp[id.trim()];
+    if (v == null || v === '') return '…';
+    return (Array.isArray(v) ? v.map(sinCodigo).join(', ') : sinCodigo(v)).toLowerCase();
+  });
+}
+function escalaDe(q) {
+  var partes = String(q.opciones || '1-5').split('|'), lim = partes[0].split('-').map(Number);
+  var min = isNaN(lim[0]) ? 1 : lim[0], max = isNaN(lim[1]) ? 5 : lim[1], nums = [];
+  for (var n = min; n <= max; n++) nums.push(n);
+  var extra = null, mx = (partes[3] || '').trim().match(/^(\d+)\s*[=.\-]?\s*(.*)$/);
+  if (mx) extra = { v: Number(mx[1]), t: mx[2] || mx[1] };
+  return { min: min, max: max, nums: nums, etqMin: (partes[1] || '').trim(), etqMax: (partes[2] || '').trim(), extra: extra };
+}
+
+function empezar(enc) {
+  corrida = { enc: enc, resp: {}, actual: enc.preguntas[0] && enc.preguntas[0].id, inicio: Date.now(), gps: null, uuid: uuid(),
+    consentimiento: puedeGrabar() ? null : 'No (el equipo no permite grabar)', marcas: [] };
+  if (!corrida.actual) { aviso('Esta encuesta no tiene preguntas.'); return; }
+  if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function (p) {
+    if (corrida) corrida.gps = { lat: +p.coords.latitude.toFixed(6), lng: +p.coords.longitude.toFixed(6), acc: p.coords.accuracy };
+  }, function () {}, { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 });
+  $('#enc-nombre').textContent = enc.nombre;
+  ver('encuesta'); pintarPregunta();
+}
+
+function indicePantalla(ps) {
+  var i = ps.findIndex(function (p) { return p.some(function (q) { return q.id === corrida.actual; }); });
+  if (i < 0) { i = 0; corrida.actual = ps[0][0].id; }
+  return i;
+}
+
+function control(q, compacto) {
+  var r = corrida.resp[q.id], h = '', d = ' data-q="' + esc(q.id) + '"';
+  if (q.tipo === 'unica' || q.tipo === 'multiple') {
+    var multi = q.tipo === 'multiple', sel = multi ? (r || []) : r;
+    h += '<div class="opciones' + (compacto ? ' compactas' : '') + '" role="' + (multi ? 'group' : 'radiogroup') + '">' + opciones(q).map(function (o, i) {
+      var on = multi ? sel.indexOf(o) >= 0 : sel === o;
+      return '<button type="button" class="opcion' + (multi ? ' cuadro' : '') + (on ? ' sel' : '') + '"' + d + ' data-o="' + i + '" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '"><span class="marca"></span><span>' + esc(o) + '</span></button>';
+    }).join('') + '</div>';
+  } else if (q.tipo === 'escala') {
+    var e = escalaDe(q);
+    h += '<div class="escala" role="radiogroup">' + e.nums.map(function (n) {
+      return '<button type="button" class="opcion' + (r === n ? ' sel' : '') + '"' + d + ' data-n="' + n + '" role="radio" aria-checked="' + (r === n) + '">' + n + '</button>';
+    }).join('') + '</div>';
+    if (e.extra) h += '<button type="button" class="opcion opcion-extra' + (r === e.extra.v ? ' sel' : '') + '"' + d + ' data-n="' + e.extra.v + '" role="radio" aria-checked="' + (r === e.extra.v) + '"><span class="marca"></span><span>' + esc(e.extra.t) + '</span></button>';
+    if (!compacto && (e.etqMin || e.etqMax)) h += '<div class="escala-pie"><span>' + e.min + ' = ' + esc(e.etqMin) + '</span><span>' + e.max + ' = ' + esc(e.etqMax) + '</span></div>';
+  } else if (q.tipo === 'lista') {
+    h += '<select class="entrada"' + d + ' data-campo="lista" aria-label="' + esc(q.pregunta) + '"><option value="">Seleccione…</option>' + opciones(q).map(function (o) {
+      return '<option' + (r === o ? ' selected' : '') + '>' + esc(o) + '</option>';
+    }).join('') + '</select>';
+  } else if (q.tipo === 'numero') {
+    h += '<input class="entrada"' + d + ' data-campo="numero" type="number" inputmode="decimal" aria-label="' + esc(q.pregunta) + '" value="' + esc(r == null ? '' : r) + '">';
+  } else if (q.tipo === 'foto') {
+    h += '<label class="btn btn-borde" for="foto-' + esc(q.id) + '" style="cursor:pointer">' + (r ? 'Tomar otra foto' : 'Tomar foto') + '</label>' +
+      '<input id="foto-' + esc(q.id) + '"' + d + ' data-campo="foto" type="file" accept="image/*" capture="environment" style="position:absolute;left:-9999px">' +
+      (r ? '<img class="foto-prev" src="' + r + '" alt="Foto tomada">' : '');
+  } else if (q.tipo !== 'fin') {
+    h += '<textarea class="entrada"' + d + ' data-campo="texto" aria-label="' + esc(q.pregunta) + '" placeholder="' + (q.audio ? 'Escriba aquí, o grabe la respuesta abajo' : '') + '">' + esc(r || '') + '</textarea>';
+  }
+  if (q.tipo === 'texto' && (q.audio || grab.total)) h += cajaAudio(q);
+  return h;
+}
+
+function cajaAudio(q) {
+  // La encuesta completa se graba desde el inicio; ya no se graba por pregunta
+  if (grab.total) return '<p class="meta" style="margin-top:10px">● La respuesta hablada queda en la grabación de la encuesta.</p>';
+  if (corrida.consentimiento !== '' && corrida.consentimiento != null) return '';
+  if (!puedeGrabar()) return '<p class="meta">Este celular no permite grabar audio; escriba la respuesta.</p>';
+  var a = corrida.resp[q.id + '__audio'], id = esc(q.id);
+  if (grab.clip && grab.clip.id === q.id)
+    return '<div class="audio-caja"><button type="button" class="btn-audio grabando" data-audio="parar" data-q="' + id + '"><span class="punto"></span>Detener grabación · <span id="reloj-' + id + '">00:00</span></button></div>';
+  if (a)
+    return '<div class="audio-caja"><span class="meta">Respuesta grabada</span><audio controls src="' + a + '"></audio>' +
+      '<div class="fila-btns"><button type="button" class="btn-audio" data-audio="grabar" data-q="' + id + '">' + IC_MIC + 'Volver a grabar</button>' +
+      '<button type="button" class="btn-audio" data-audio="borrar" data-q="' + id + '">Borrar audio</button></div></div>';
+  return '<div class="audio-caja"><span class="meta">Puede escribir, grabar la respuesta o hacer ambas cosas.</span>' +
+    '<button type="button" class="btn-audio" data-audio="grabar" data-q="' + id + '">' + IC_MIC + 'Grabar respuesta</button></div>';
+}
+
+function pintarConsentimiento() {
+  $('#enc-paso').textContent = ''; $('#enc-barra').style.width = '0%';
+  $('.pie').style.display = 'none';
+  $('#zona-pregunta').innerHTML = '<p class="eyebrow">Antes de empezar</p><h1>¿El encuestado acepta que se grabe el audio de la encuesta?</h1>' +
+    '<p class="ayuda">Pregúntele: «Esta encuesta se grabará solo para control de calidad. ¿Está de acuerdo?» Si no acepta, la encuesta se hace igual, sin grabar.</p>' +
+    '<div class="consent"><button type="button" class="btn btn-azul" id="c-si">Sí acepta · empezar a grabar</button>' +
+    '<button type="button" class="btn btn-borde" id="c-no">No acepta · continuar sin grabar</button></div>';
+  $('#c-si').onclick = async function () {
+    try { await iniciarTotal(); corrida.consentimiento = 'Sí'; }
+    catch (e) { corrida.consentimiento = 'No (micrófono bloqueado)'; aviso('No se pudo usar el micrófono. Revisa los permisos del navegador.'); }
+    $('.pie').style.display = 'flex'; pintarPregunta();
+  };
+  $('#c-no').onclick = function () { corrida.consentimiento = 'No'; $('.pie').style.display = 'flex'; pintarPregunta(); };
+}
+
+function pintarPregunta() {
+  if (corrida.consentimiento === null) { pintarConsentimiento(); return; }
+  setTimeout(function () { guardarBorrador(true); }, 0);
+  var ps = pantallas(), idx = indicePantalla(ps), pant = ps[idx], q = pant[0];
+  var esFin = q.tipo === 'fin', bloque = pant.length > 1 || !!q.bloque;
+  marcar_(q.id);
+  $('#enc-paso').textContent = (idx + 1) + ' / ' + ps.length;
+  $('#enc-barra').style.width = Math.round((idx + 1) * 100 / ps.length) + '%';
+  $('#btn-anterior').style.visibility = idx === 0 ? 'hidden' : 'visible';
+  $('#btn-siguiente').textContent = esFin || idx === ps.length - 1 ? 'Terminar' : 'Siguiente';
+  var ayuda = { unica: 'Elija una opción.', multiple: 'Puede elegir varias opciones.', escala: 'Elija un número.', numero: 'Escriba un número.', texto: 'Escriba la respuesta.', foto: 'Tome una foto con la cámara.', lista: 'Elija de la lista.' }[q.tipo] || '';
+  if (q.tipo === 'texto' && grab.total) ayuda = 'Escriba la respuesta, o déjela en blanco: lo que diga el encuestado queda grabado.';
+  var h = '<p class="eyebrow">' + esc(q.seccion || ('Pregunta ' + (idx + 1))) + (!esFin && !bloque && !q.obligatoria ? ' · opcional' : '') + '</p>';
+  if (esFin) {
+    h += '<h1>' + esc(insertar(q.pregunta)) + '</h1><p class="ayuda">Toca Terminar para cerrar la encuesta.</p>';
+  } else if (bloque) {
+    var e = q.tipo === 'escala' ? escalaDe(q) : null;
+    h += '<h1>' + esc(insertar(q.bloque)) + '</h1>';
+    if (e && (e.etqMin || e.etqMax)) h += '<p class="ayuda">' + e.min + ' = ' + esc(e.etqMin) + ' · ' + e.max + ' = ' + esc(e.etqMax) + '</p>';
+    else h += '<p class="ayuda"></p>';
+    h += '<div class="items">' + pant.map(function (x) {
+      return '<div class="item" id="item-' + esc(x.id) + '"><p class="item-titulo">' + esc(insertar(x.pregunta)) + (x.obligatoria ? '' : ' <span class="meta">(opcional)</span>') + '</p>' + control(x, true) + '</div>';
+    }).join('') + '</div>';
+  } else {
+    h += '<h1>' + esc(insertar(q.pregunta)) + '</h1><p class="ayuda">' + ayuda + '</p>' + control(q, false);
+  }
+  h += '<p class="error-preg" id="error-preg" role="alert"></p>';
+  var z = $('#zona-pregunta'); z.innerHTML = h;
+  var buscar = function (id) { return corrida.enc.preguntas.find(function (x) { return x.id === id; }); };
+
+  z.querySelectorAll('[data-o]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var x = buscar(b.dataset.q), o = opciones(x)[+b.dataset.o];
+      if (x.tipo === 'multiple') {
+        var a = (corrida.resp[x.id] || []).slice(), k = a.indexOf(o);
+        if (k >= 0) a.splice(k, 1); else a.push(o);
+        corrida.resp[x.id] = a;
+      } else corrida.resp[x.id] = o;
+      repintar();
+    });
+  });
+  z.querySelectorAll('[data-n]').forEach(function (b) { b.addEventListener('click', function () { corrida.resp[b.dataset.q] = +b.dataset.n; repintar(); }); });
+  z.querySelectorAll('[data-audio]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      var id = b.dataset.q, acc = b.dataset.audio;
+      if (acc === 'parar') { b.disabled = true; await detenerClip(); repintar(); return; }
+      if (acc === 'borrar') { delete corrida.resp[id + '__audio']; repintar(); return; }
+      if (grab.clip) await detenerClip();
+      try { await iniciarClip(id); } catch (e) { aviso('No se pudo usar el micrófono. Revisa los permisos del navegador.'); return; }
+      repintar();
+    });
+  });
+  z.querySelectorAll('[data-campo]').forEach(function (inp) {
+    var x = buscar(inp.dataset.q);
+    if (inp.dataset.campo === 'foto') inp.addEventListener('change', async function () {
+      if (!inp.files[0]) return;
+      try { corrida.resp[x.id] = await comprimir(inp.files[0]); repintar(); } catch (e) { aviso('No se pudo leer la foto.'); }
+    });
+    else if (inp.dataset.campo === 'lista') inp.addEventListener('change', function () { corrida.resp[x.id] = inp.value; repintar(); });
+    else inp.addEventListener('input', function () { corrida.resp[x.id] = x.tipo === 'numero' ? (inp.value === '' ? '' : Number(inp.value)) : inp.value; guardarBorrador(); });
+  });
+}
+// Repinta conservando la posición de la pantalla (útil en bloques largos)
+function repintar() { var y = window.scrollY; pintarPregunta(); window.scrollTo(0, y); guardarBorrador(); }
+
+function comprimir(archivo) {
+  return new Promise(function (ok, mal) {
+    var img = new Image(), url = URL.createObjectURL(archivo);
+    img.onload = function () {
+      var k = Math.min(1, 1280 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); ok(c.toDataURL('image/jpeg', 0.7));
+    };
+    img.onerror = mal; img.src = url;
+  });
+}
+
+function vacia(v) { return v == null || v === '' || (Array.isArray(v) && !v.length); }
+
+$('#btn-siguiente').addEventListener('click', async function () {
+  var ps = pantallas(), idx = indicePantalla(ps), pant = ps[idx];
+  if (pant[0].tipo === 'fin') { terminar(pant[0]); return; }
+  if (grab.clip) await detenerClip();
+  if (grab.total) pant.forEach(function (x) {
+    if (x.tipo === 'texto' && vacia(corrida.resp[x.id])) {
+      var m = corrida.marcas.filter(function (k) { return k.id === pant[0].id; }).pop();
+      corrida.resp[x.id] = 'Respuesta en la grabación · min ' + mmss(m ? m.t : tiempoAudio());
+    }
+  });
+  var faltan = pant.filter(function (x) { return x.obligatoria && vacia(corrida.resp[x.id]) && vacia(corrida.resp[x.id + '__audio']); });
+  if (faltan.length) {
+    $('#error-preg').textContent = pant.length > 1 ? 'Faltan ' + faltan.length + (faltan.length === 1 ? ' respuesta obligatoria.' : ' respuestas obligatorias.') : 'Esta pregunta es obligatoria.';
+    var el = document.getElementById('item-' + faltan[0].id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  ps = pantallas(); idx = ps.findIndex(function (p) { return p.some(function (x) { return x.id === pant[0].id; }); });
+  if (idx < ps.length - 1) { corrida.actual = ps[idx + 1][0].id; pintarPregunta(); window.scrollTo(0, 0); }
+  else terminar(null);
+});
+$('#btn-anterior').addEventListener('click', async function () {
+  if (grab.clip) await detenerClip();
+  var ps = pantallas(), idx = indicePantalla(ps);
+  if (idx > 0) { corrida.actual = ps[idx - 1][0].id; pintarPregunta(); window.scrollTo(0, 0); }
+});
+$('#btn-cancelar').addEventListener('click', async function () {
+  if (confirmarSalida()) {
+    if (grab.clip) await detenerClip();
+    await pausarTotal();
+    if (corrida && corrida.consentimiento !== null) guardarBorrador(true); else if (corrida) borradores.quitar(corrida.uuid).catch(function () {});
+    descartarGrabaciones(); $('.pie').style.display = 'flex'; corrida = null;
+    setTimeout(function () { ver('lista'); }, 150);
+  }
+});
+function confirmarSalida() {
+  var b = $('#btn-cancelar');
+  if (b.dataset.armado) { delete b.dataset.armado; return true; }
+  b.dataset.armado = '1'; aviso('Toca la X otra vez para salir. Podrás continuarla después desde Mis encuestas.');
+  setTimeout(function () { delete b.dataset.armado; }, 3500);
+  return false;
+}
+
+async function terminar(qFin) {
+  var vs = visibles(), resp = {};
+  if (grab.clip) await detenerClip();
+  vs.forEach(function (q) {
+    if (q.tipo !== 'fin' && !vacia(corrida.resp[q.id])) resp[q.id] = corrida.resp[q.id];
+    if (q.audio && corrida.resp[q.id + '__audio']) resp[q.id + '__audio'] = corrida.resp[q.id + '__audio'];
+  });
+  var partes = (corrida.segmentos || []).slice(), marcas = '';
+  if (grab.total) { var bt = await terminarTotal(); if (bt) partes.push(bt); }
+  if (partes.length) marcas = corrida.marcas.map(function (m) { return m.id + ' ' + mmss(m.t); }).join(' · ');
+  var audios = [];
+  for (var k = 0; k < partes.length; k++) { var du = await aDataURL(partes[k]); if (du) audios.push(du); }
+  cerrarMicro();
+  var fin = Date.now(), estado = qFin ? (String(qFin.opciones || '').trim() || 'Completa') : 'Completa';
+  var envio = { uuid: corrida.uuid, encuesta_id: corrida.enc.id, encuestador: sesion.codigo, zona: (sesion.ficha && sesion.ficha.zona) || '', estado: estado, inicio: corrida.inicio, fin: fin, gps: corrida.gps, respuestas: resp };
+  if (corrida.consentimiento) envio.audio_autorizado = corrida.consentimiento;
+  if (audios.length === 1) envio.audio_completo = audios[0];
+  if (audios.length > 1) envio.audio_partes = audios;
+  if (audios.length) envio.marcas = marcas;
+  try { await cola.poner(envio); } catch (e) { aviso('No se pudo guardar en el celular. Revisa el espacio libre.'); return; }
+  var primera = vs.find(function (q) { return q.tipo === 'texto' && resp[q.id]; });
+  var h = historial();
+  h.unshift({ uuid: envio.uuid, encuesta_id: corrida.enc.id, nombre: corrida.enc.nombre, encuestador: sesion.codigo, fecha: fin, estado: 'pendiente', resumen: (estado !== 'Completa' ? estado + ' · ' : '') + (primera ? String(resp[primera.id]).slice(0, 60) : '') });
+  guardarHist(h);
+  var datos = { enc: corrida.enc, dur: fin - corrida.inicio, gps: !!corrida.gps, enviando: navigator.onLine };
+  clearTimeout(tBorrador); borradores.quitar(corrida.uuid).catch(function () {});
+  corrida = null;
+  await pintarFin(datos, envio.uuid);
+  if (navigator.onLine) {
+    await sincronizar();
+    datos.enviando = false;
+    if ($('#fin').classList.contains('activa') && finActual === envio.uuid) pintarFin(datos, envio.uuid);
+  }
+}
+var finActual = null;
+
+async function pintarFin(d, id) {
+  finActual = id;
+  var item = historial().find(function (x) { return x.uuid === id; }), enviada = item && item.estado === 'enviada';
+  var enCurso = d.enviando && !enviada && !(item && item.estado === 'error');
+  var pend = 0; try { pend = (await cola.todas()).length; } catch (e) {}
+  $('#fin-circulo').style.background = enviada ? 'var(--celeste)' : 'var(--plomo)';
+  $('#fin-circulo').innerHTML = enviada ? IC.check : IC.reloj;
+  $('#fin-eyebrow').textContent = d.enc.nombre;
+  $('#fin-titulo').textContent = enviada ? 'Encuesta enviada' : enCurso ? 'Enviando encuesta…' : 'Encuesta guardada en tu celular';
+  $('#fin-texto').textContent = enviada ? 'Ya llegó a Mercadeando. Puedes empezar la siguiente.' :
+    enCurso ? 'Ya está guardada en tu celular. Puedes empezar la siguiente encuesta; el envío sigue en segundo plano.' :
+    (item && item.estado === 'error' ? 'El servidor no la aceptó: ' + (item.detalle || '') + '. Avisa a tu supervisor.' : 'No hay señal ahora. Se enviará sola en cuanto el celular vuelva a conectarse.');
+  var min = Math.floor(d.dur / 60000), seg = Math.round(d.dur % 60000 / 1000);
+  $('#fin-resumen').innerHTML =
+    '<div class="fila"><span>Estado</span>' + distintivo(item ? item.estado : 'pendiente') + '</div>' +
+    '<div class="fila"><span>Pendientes de envío</span><b>' + pend + '</b></div>' +
+    '<div class="fila"><span>Ubicación registrada</span><b>' + (d.gps ? 'Sí' : 'No') + '</b></div>' +
+    '<div class="fila"><span>Duración</span><b>' + min + ' min ' + seg + ' s</b></div>';
+  $('#btn-otra').onclick = function () { empezar(d.enc); };
+  ver('fin');
+}
+$('#btn-volver').addEventListener('click', function () { ver('lista'); });
+
+/* ---------- envío ---------- */
+var enviando = false;
+async function sincronizar() {
+  if (enviando || !API) return;
+  enviando = true;
+  try {
+    await enviarFicha();
+    var items = [];
+    try { items = await cola.todas(); } catch (e) {}
+    for (var i = 0; i < items.length; i++) {
+      if (!navigator.onLine) break;
+      try {
+        var cuerpo = JSON.stringify(items[i]);
+        var r = await pedir(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: cuerpo }, 60000 + Math.ceil(cuerpo.length / 1048576) * 30000);
+        var j = await r.json();
+        if (j.ok) { await cola.quitar(items[i].uuid); marcar(items[i].uuid, 'enviada'); }
+        else marcar(items[i].uuid, 'error', j.error);
+      } catch (e) { break; }
+    }
+    if (sesion && sesion.activa && navigator.onLine) {
+      try {
+        // refresca encuestas y avance sin pedir el PIN otra vez
+        var j2 = await (await pedir(API + '?action=login&codigo=' + encodeURIComponent(sesion.codigo) + '&pin=' + encodeURIComponent(almacen.get('k', '')))).json();
+        if (j2.ok) { sesion.encuestas = j2.encuestas; if (!sesion.fichaPendiente) { sesion.nombre = j2.nombre; if (j2.ficha) sesion.ficha = j2.ficha; } almacen.set('sesion', sesion); }
+      } catch (e) {}
+    }
+  } finally {
+    enviando = false;
+    if ($('#lista').classList.contains('activa')) pintarLista();
+    if ($('#historial').classList.contains('activa')) pintarHistorial();
+  }
+}
+window.addEventListener('online', function () { pintarEstado(); sincronizar(); });
+window.addEventListener('offline', pintarEstado);
+setInterval(sincronizar, 60000);
+
+/* ---------- arranque ---------- */
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js');
+if (sesion && sesion.activa) { entrar(); sincronizar(); }
+else { if (sesion) $('#codigo').value = sesion.codigo; ver('ingreso'); }
+})();
+</script>
+</body>
+</html>
